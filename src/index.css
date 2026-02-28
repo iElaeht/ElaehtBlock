@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+@layer base {
+  /* Evita que el celular intente seleccionar texto o mostrar lupas al jugar */
+  * {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  body {
+    @apply bg-black overflow-hidden m-0 p-0;
+    /* Fuerza al navegador del Honor a usar la GPU para toda la app */
+    transform: translateZ(0);
+  }
+}
+
+/* Esta clase es ORO para el rendimiento en móviles de gama media */
+.gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

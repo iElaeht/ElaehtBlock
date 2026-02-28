@@ -1,42 +1,62 @@
+/* Reset total para ocupar toda la pantalla del celular */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Evita que la pantalla rebote */
+  display: flex;
+  flex-direction: column;
+  background-color: #000000;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Optimización para las piezas (Hardware Acceleration) */
+.bloque-movible {
+  will-change: transform;
+  transform: translateZ(0); /* Activa el chip de video del Honor */
+  touch-action: none; /* Evita conflictos con gestos del sistema */
+  user-select: none;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Efecto Neón optimizado para gama media (Honor X6) */
+/* En lugar de mucho blur, usamos bordes nítidos y brillo corto */
+.neon-blue {
+  border: 2px solid #00f2ff;
+  box-shadow: 0 0 8px #00f2ff;
+  background: rgba(0, 242, 255, 0.1);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.neon-pink {
+  border: 2px solid #ff007f;
+  box-shadow: 0 0 8px #ff007f;
+  background: rgba(255, 0, 127, 0.1);
 }
 
-.card {
-  padding: 2em;
+.neon-purple {
+  border: 2px solid #bc13fe;
+  box-shadow: 0 0 8px #bc13fe;
+  background: rgba(188, 19, 254, 0.1);
 }
 
-.read-the-docs {
-  color: #888;
+/* Contenedor de los botones de piezas (abajo) */
+.piezas-contenedor {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  padding-bottom: env(safe-area-inset-bottom); /* Para celulares con barra gestual */
+  margin-top: auto;
+  height: 25vh; /* Ocupa el 25% de la altura del celular */
+}
+
+/* El tablero principal */
+.tablero {
+  margin: auto;
+  display: grid;
+  gap: 4px; /* Espacio entre bloques */
+  padding: 10px;
+  /* El tamaño se ajustará al ancho de la pantalla pero no más de 400px */
+  width: 95vw;
+  max-width: 400px;
+  aspect-ratio: 1 / 1; 
 }

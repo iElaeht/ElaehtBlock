@@ -21,7 +21,6 @@ const SOUNDS = {
 
 // --- COMPONENTES ---
 
-// Componente BoardCell (memorizado para rendimiento)
 const BoardCell = memo(({ r, c, color, isPreview, isInvalid, isClearing }: any) => {
   const { setNodeRef } = useDroppable({ id: `cell-${r}-${c}`, data: { r, c } });
   let bgClass = 'bg-white/[0.05] border-white/5'; 
@@ -44,7 +43,6 @@ const BoardCell = memo(({ r, c, color, isPreview, isInvalid, isClearing }: any) 
   );
 });
 
-// Componente DraggablePiece (memorizado para rendimiento)
 const DraggablePiece = memo(({ id, shape, color }: Piece) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id });
   
@@ -75,7 +73,6 @@ const DraggablePiece = memo(({ id, shape, color }: Piece) => {
   );
 });
 
-// Envoltorio para el Piece Dock que actúa como área Droppable
 function PieceDockWrapper({ id, children }: { id: string, children: React.ReactNode }) {
   const { setNodeRef } = useDroppable({ id });
   return (
@@ -85,18 +82,16 @@ function PieceDockWrapper({ id, children }: { id: string, children: React.ReactN
   );
 }
 
-// NUEVO COMPONENTE: Pantalla de Carga y Animación
 const LoadingScreen = () => {
   const [currentPieceIndex, setCurrentPieceIndex] = useState(0);
   const loadingPieces = [
-    { shape: [[1, 1, 1, 1]], color: 'bg-cyan-400' }, // Larga de 4
-    { shape: [[1, 1], [1, 1]], color: 'bg-blue-400' }, // Cuadrado
-    { shape: [[1, 1]], color: 'bg-indigo-400' }, // Bloque de 2
-    { shape: [[1]], color: 'bg-violet-400' } // Uno solo
+    { shape: [[1, 1, 1, 1]], color: 'bg-cyan-400' },
+    { shape: [[1, 1], [1, 1]], color: 'bg-blue-400' },
+    { shape: [[1, 1]], color: 'bg-indigo-400' },
+    { shape: [[1]], color: 'bg-violet-400' }
   ];
 
   useEffect(() => {
-    // Cambiar la pieza cada 500ms
     const interval = setInterval(() => {
       setCurrentPieceIndex((prev) => (prev + 1) % loadingPieces.length);
     }, 500);
@@ -113,8 +108,6 @@ const LoadingScreen = () => {
           <span className="text-white/20 not-italic uppercase text-3xl tracking-[0.2em]">AI Block</span>
         </h1>
       </div>
-      
-      {/* Animación de la Pieza */}
       <div className="flex items-center justify-center h-48 w-full animate-in fade-in duration-300">
         <div className="grid gap-1">
           {piece.shape.map((row, rIdx) => (
@@ -129,14 +122,13 @@ const LoadingScreen = () => {
           ))}
         </div>
       </div>
-      
       <p className="text-[10px] uppercase font-black tracking-[0.6em] text-blue-400 animate-pulse mt-10">Cargando Sistema...</p>
     </div>
   );
 };
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true); // Nuevo estado de carga
+  const [isLoading, setIsLoading] = useState(true);
   const [gameStarted, setGameStarted] = useState(false);
   const [grid, setGrid] = useState<(string | null)[][]>(() => Array(8).fill(null).map(() => Array(8).fill(null)));
   const [availablePieces, setAvailablePieces] = useState(() => getNewTransformedPieces());
@@ -150,14 +142,13 @@ export default function App() {
   const [showMenu, setShowMenu] = useState(false);
   const [confirmRestore, setConfirmRestore] = useState(false);
   const [bgClass, setBgClass] = useState('bg-slate-800');
-  const lastMilestone = useRef(0);
+  
+  // lastMilestone inicializado como número para evitar errores TS
+  const lastMilestone = useRef<number>(0);
 
-  // Sensores optimizados para tacto
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  // NUEVO EFECTO: Simulación de Carga
   useEffect(() => {
-    // Simular una carga de 3.5 segundos antes de mostrar el menú principal
     const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
     }, 3500); 
@@ -187,6 +178,16 @@ export default function App() {
       localStorage.setItem('user-highscore', score.toString());
     }
   }, [score, highScore]);
+
+  function getNewTransformedPieces() {
+    const rotateMatrix = (m: number[][]) => m[0].map((_, i) => m.map(row => row[i]).reverse());
+    return getRandomPieces().map(piece => {
+      let newShape = [...piece.shape];
+      const rotations = Math.floor(Math.random() * 4);
+      for (let i = 0; i < rotations; i++) newShape = rotateMatrix(newShape);
+      return { ...piece, shape: newShape, id: `${piece.id}-${Math.random()}` };
+    });
+  }
 
   const resetGame = () => {
     setGrid(Array(8).fill(null).map(() => Array(8).fill(null)));
@@ -222,16 +223,6 @@ export default function App() {
       return () => clearTimeout(timeout);
     }
   }, [score, displayScore]);
-
-  function getNewTransformedPieces() {
-    const rotateMatrix = (m: number[][]) => m[0].map((_, i) => m.map(row => row[i]).reverse());
-    return getRandomPieces().map(piece => {
-      let newShape = [...piece.shape];
-      const rotations = Math.floor(Math.random() * 4);
-      for (let i = 0; i < rotations; i++) newShape = rotateMatrix(newShape);
-      return { ...piece, shape: newShape, id: `${piece.id}-${Math.random()}` };
-    });
-  }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { over, active } = event;
@@ -301,15 +292,11 @@ export default function App() {
     }
   };
 
-  // NUEVA LÓGICA DE RENDERIZADO PRINCIPAL
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <div className={`min-h-screen w-full ${bgClass} flex flex-col items-center justify-center p-4 text-white select-none overflow-hidden relative font-sans transition-colors duration-1000 ease-in-out`}>
       
-      {/* HUD RECORD OPTIMIZADO V 1.2 */}
       <div className="absolute top-6 left-6 z-50">
         <div className="bg-black/40 px-4 py-2 rounded-xl border border-white/10 backdrop-blur-sm shadow-xl">
           <p className="text-[9px] uppercase font-black tracking-[0.2em] text-blue-400 leading-none mb-1">Mejor Record</p>
@@ -322,14 +309,12 @@ export default function App() {
           <div className="text-center group">
             <h1 className="text-6xl font-black tracking-tighter italic leading-none group-hover:scale-105 transition-transform duration-500">ELAEHT<br/><span className="text-white/20 not-italic uppercase text-3xl tracking-[0.2em]">AI Block</span></h1>
           </div>
-          
           <button 
             onClick={() => setGameStarted(true)} 
             className="px-16 py-5 bg-white text-black font-black text-xl rounded-2xl active:scale-90 transition-transform shadow-xl"
           >
             PLAY GAME
           </button>
-          
           <footer className="absolute bottom-6 opacity-30 text-center">
              <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-1">Version: V 1.2</p>
              <p className="text-[9px] font-bold uppercase">Dev: Elaehtdev</p>
@@ -385,7 +370,6 @@ export default function App() {
              <div className="w-5 h-1 bg-white/60 rounded-full ml-auto" />
           </button>
 
-          {/* GAME OVER V 1.2 */}
           {isGameOver && (
              <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[700] p-6 animate-in fade-in zoom-in duration-300">
                <div className="w-full max-w-sm bg-zinc-900 border border-white/10 p-8 rounded-[2rem] text-center shadow-2xl">
@@ -402,7 +386,6 @@ export default function App() {
              </div>
           )}
 
-          {/* MENÚ HAMBURGUESA V 1.2 */}
           {showMenu && (
             <div className="fixed inset-0 bg-black/70 z-[600] flex items-center justify-center p-6 animate-in fade-in duration-200">
                 <div className="w-full max-w-xs flex flex-col bg-zinc-900 border border-white/5 rounded-[2rem] overflow-hidden">

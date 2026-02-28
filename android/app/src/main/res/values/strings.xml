@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">elaehtBlock</string>
+    <string name="title_activity_main">elaehtBlock</string>
+    <string name="package_name">com.elaeht.blockgame</string>
+    <string name="custom_url_scheme">com.elaeht.blockgame</string>
+</resources>

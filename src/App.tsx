@@ -38,7 +38,7 @@ const BoardCell = memo(({ r, c, color, isPreview, isInvalid, isClearing }: any) 
   return (
     <div 
       ref={setNodeRef} 
-      className={`w-[10.5vw] h-[10.5vw] max-w-[48px] max-h-[48px] sm:w-11 sm:h-11 rounded-md border ${bgClass} transition-all duration-100 ease-linear will-change-transform`} 
+      className={`w-[10.5vw] h-[10.5vw] max-w-[46px] max-h-[46px] sm:w-11 sm:h-11 rounded-md border ${bgClass} transition-all duration-100 ease-linear will-change-transform`} 
     />
   );
 });
@@ -63,7 +63,7 @@ const DraggablePiece = memo(({ id, shape, color }: Piece) => {
             {row.map((cell, cIdx) => (
               <div 
                 key={cIdx} 
-                className={`w-[4.8vw] h-[4.8vw] max-w-[24px] max-h-[24px] rounded-sm ${cell ? `${color} border border-black/10 shadow-lg` : 'bg-transparent'}`} 
+                className={`w-[4.8vw] h-[4.8vw] max-w-[22px] max-h-[22px] rounded-sm ${cell ? `${color} border border-black/10 shadow-lg` : 'bg-transparent'}`} 
               />
             ))}
           </div>
@@ -76,7 +76,7 @@ const DraggablePiece = memo(({ id, shape, color }: Piece) => {
 function PieceDockWrapper({ id, children }: { id: string, children: React.ReactNode }) {
   const { setNodeRef } = useDroppable({ id });
   return (
-    <div ref={setNodeRef} className="mt-10 w-full max-w-[420px] bg-black/30 border border-white/5 rounded-[2rem] p-4 flex justify-around items-center min-h-[130px] transition-all">
+    <div ref={setNodeRef} className="mt-8 w-full max-w-[420px] bg-black/30 border border-white/5 rounded-[2.5rem] p-4 flex justify-around items-center min-h-[140px] transition-all shadow-2xl">
       {children}
     </div>
   );
@@ -143,9 +143,7 @@ export default function App() {
   const [confirmRestore, setConfirmRestore] = useState(false);
   const [bgClass, setBgClass] = useState('bg-slate-800');
   
-  // lastMilestone inicializado como número para evitar errores TS
   const lastMilestone = useRef<number>(0);
-
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   useEffect(() => {
@@ -295,9 +293,10 @@ export default function App() {
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <div className={`min-h-screen w-full ${bgClass} flex flex-col items-center justify-center p-4 text-white select-none overflow-hidden relative font-sans transition-colors duration-1000 ease-in-out`}>
+    <div className={`min-h-screen w-full ${bgClass} flex flex-col items-center justify-between py-[12vh] px-4 text-white select-none overflow-hidden relative font-sans transition-colors duration-1000 ease-in-out`}>
       
-      <div className="absolute top-6 left-6 z-50">
+      {/* Botón de Récord - Posición ajustada para no chocar con cámaras frontales */}
+      <div className="absolute top-[5vh] left-6 z-50">
         <div className="bg-black/40 px-4 py-2 rounded-xl border border-white/10 backdrop-blur-sm shadow-xl">
           <p className="text-[9px] uppercase font-black tracking-[0.2em] text-blue-400 leading-none mb-1">Mejor Record</p>
           <div className="text-xl font-mono font-bold leading-none tracking-tight">{highScore.toLocaleString()}</div>
@@ -305,7 +304,7 @@ export default function App() {
       </div>
 
       {!gameStarted ? (
-        <div className="flex flex-col items-center space-y-12 animate-in fade-in duration-500 text-center">
+        <div className="flex-1 flex flex-col items-center justify-center space-y-12 animate-in fade-in duration-500 text-center">
           <div className="text-center group">
             <h1 className="text-6xl font-black tracking-tighter italic leading-none group-hover:scale-105 transition-transform duration-500">ELAEHT<br/><span className="text-white/20 not-italic uppercase text-3xl tracking-[0.2em]">AI Block</span></h1>
           </div>
@@ -315,7 +314,7 @@ export default function App() {
           >
             PLAY GAME
           </button>
-          <footer className="absolute bottom-6 opacity-30 text-center">
+          <footer className="opacity-30 text-center pt-10">
              <p className="text-[10px] font-black tracking-[0.3em] uppercase mb-1">Version: V 1.2</p>
              <p className="text-[9px] font-bold uppercase">Dev: Elaehtdev</p>
           </footer>
@@ -343,36 +342,42 @@ export default function App() {
           }} 
           onDragEnd={handleDragEnd}
         >
-          <header className="mb-6 text-center tracking-tight animate-in slide-in-from-top duration-500">
+          {/* Header del Score ajustado con margen */}
+          <header className="mb-4 text-center tracking-tight animate-in slide-in-from-top duration-500">
             <div className="text-7xl font-mono font-black">{displayScore.toLocaleString()}</div>
             <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.5em]">Score</p>
           </header>
 
-          <div className="bg-black/20 p-2 rounded-[1.5rem] border border-white/5 shadow-inner">
-            <div className="grid grid-cols-8 gap-1 sm:gap-1.5">
-              {grid.map((row, r) => row.map((cellColor, c) => {
-                const isPreview = preview ? (r >= preview.r && r < preview.r + preview.shape.length && c >= preview.c && c < preview.c + preview.shape[0].length && preview.shape[r - preview.r][c - preview.c] === 1) : false;
-                return <BoardCell key={`${r}-${c}`} r={r} c={c} color={cellColor} isPreview={isPreview} isInvalid={preview ? !preview.isValid : false} isClearing={clearingCells.some(cell => cell.r === r && cell.c === c)} />;
-              }))}
+          {/* Contenedor principal del tablero */}
+          <div className="flex-1 flex flex-col items-center justify-center w-full">
+            <div className="bg-black/20 p-2 rounded-[1.5rem] border border-white/5 shadow-inner">
+              <div className="grid grid-cols-8 gap-1 sm:gap-1.5">
+                {grid.map((row, r) => row.map((cellColor, c) => {
+                  const isPreview = preview ? (r >= preview.r && r < preview.r + preview.shape.length && c >= preview.c && c < preview.c + preview.shape[0].length && preview.shape[r - preview.r][c - preview.c] === 1) : false;
+                  return <BoardCell key={`${r}-${c}`} r={r} c={c} color={cellColor} isPreview={isPreview} isInvalid={preview ? !preview.isValid : false} isClearing={clearingCells.some(cell => cell.r === r && cell.c === c)} />;
+                }))}
+              </div>
             </div>
+
+            <PieceDockWrapper id="piece-dock">
+              {availablePieces.map(p => (
+                <div key={p.id} className="flex-1 flex justify-center items-center scale-90 active:scale-100 transition-transform">
+                   <DraggablePiece {...p} />
+                </div>
+              ))}
+            </PieceDockWrapper>
           </div>
 
-          <PieceDockWrapper id="piece-dock">
-            {availablePieces.map(p => (
-              <div key={p.id} className="flex-1 flex justify-center items-center scale-90 active:scale-100 transition-transform">
-                 <DraggablePiece {...p} />
-              </div>
-            ))}
-          </PieceDockWrapper>
-
-          <button onClick={() => setShowMenu(true)} className="absolute top-6 right-6 flex flex-col items-center justify-center p-4 active:opacity-50 transition-opacity">
-             <div className="w-7 h-1 bg-white rounded-full mb-1.5" />
-             <div className="w-5 h-1 bg-white/60 rounded-full ml-auto" />
+          {/* Botón Menú - Posición ajustada para no chocar con el notch */}
+          <button onClick={() => setShowMenu(true)} className="absolute top-[5vh] right-6 flex flex-col items-center justify-center p-4 active:opacity-50 transition-opacity">
+              <div className="w-7 h-1 bg-white rounded-full mb-1.5" />
+              <div className="w-5 h-1 bg-white/60 rounded-full ml-auto" />
           </button>
 
+          {/* Modales - Mantenidos igual pero con z-index alto */}
           {isGameOver && (
-             <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[700] p-6 animate-in fade-in zoom-in duration-300">
-               <div className="w-full max-w-sm bg-zinc-900 border border-white/10 p-8 rounded-[2rem] text-center shadow-2xl">
+             <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[700] p-6 animate-in fade-in zoom-in duration-300 backdrop-blur-md">
+               <div className="w-full max-w-sm bg-zinc-900 border border-white/10 p-8 rounded-[2.5rem] text-center shadow-2xl">
                  <h2 className="text-[10px] font-black tracking-[1em] text-red-500 uppercase mb-6">Fin de Partida</h2>
                  <div className="mb-8">
                    <p className="text-7xl font-mono font-black text-white">{score.toLocaleString()}</p>
@@ -387,8 +392,8 @@ export default function App() {
           )}
 
           {showMenu && (
-            <div className="fixed inset-0 bg-black/70 z-[600] flex items-center justify-center p-6 animate-in fade-in duration-200">
-                <div className="w-full max-w-xs flex flex-col bg-zinc-900 border border-white/5 rounded-[2rem] overflow-hidden">
+            <div className="fixed inset-0 bg-black/70 z-[600] flex items-center justify-center p-6 animate-in fade-in duration-200 backdrop-blur-sm">
+                <div className="w-full max-w-xs flex flex-col bg-zinc-900 border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
                     <div className="p-6 text-center border-b border-white/5">
                       <h3 className="font-black uppercase text-[9px] tracking-[0.5em] opacity-40">Pausa</h3>
                     </div>

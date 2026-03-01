@@ -33,6 +33,14 @@ const PIECE_TYPES = [
   },
   { 
     shape: [
+      [1],
+      [1],
+      [1]
+    ], 
+    color: 'bg-indigo-600'
+  },
+  { 
+    shape: [
       [1, 0],
       [0, 1]
     ], 

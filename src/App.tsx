@@ -12,21 +12,14 @@ import {
 } from '@dnd-kit/core';
 import { getRandomPieces, type Piece } from './logic/pieces';
 
-// --- ESTILOS DE ANIMACIÓN ---
+// --- ESTILOS DE ANIMACIÓN PARA EL FADE-OUT ---
 const animationStyles = `
   @keyframes fadeOutUp {
     0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+    100% { opacity: 0; transform: translateY(-40px) scale(0.9); }
   }
   .animate-fade-out-up {
     animation: fadeOutUp 1.2s ease-out forwards;
-  }
-  @keyframes pulse-border {
-    0%, 100% { border-color: rgba(255,255,255,0.1); }
-    50% { border-color: rgba(255,255,255,0.4); }
-  }
-  .animate-pulse-border {
-    animation: pulse-border 2s infinite;
   }
 `;
 
@@ -46,14 +39,13 @@ const THEMES = [
   { bg: 'bg-[#0891B2]', text: 'text-white', accent: 'bg-white !text-cyan-600', secondary: 'bg-white/20' },
 ];
 
-// --- COMPONENTES ---
+// --- COMPONENTES OPTIMIZADOS ---
 
 const BoardCell = memo(({ r, c, color, isPreview, isInvalid, performanceMode }: any) => {
   const { setNodeRef } = useDroppable({ id: `cell-${r}-${c}`, data: { r, c } });
   
   const cellState = useMemo(() => {
-    // Agregamos border-white/20 para que los bloques colocados tengan ese relieve sutil
-    if (color) return `${color} border-white/20 ${performanceMode ? '' : 'shadow-[inset_0_0_8px_rgba(255,255,255,0.2)]'}`; 
+    if (color) return `${color} border-white/30 ${performanceMode ? '' : 'shadow-[inset_0_0_8px_rgba(255,255,255,0.2)]'}`; 
     if (isPreview) {
         if (isInvalid) return 'bg-red-500/50 border-red-200';
         const previewOpacity = performanceMode ? 'bg-black/20' : 'bg-black/60';
@@ -62,7 +54,7 @@ const BoardCell = memo(({ r, c, color, isPreview, isInvalid, performanceMode }: 
     return `bg-black/15 border-transparent`;
   }, [color, isPreview, isInvalid, performanceMode]);
 
-  return <div ref={setNodeRef} className={`aspect-square w-full rounded-md border ${cellState} transition-all duration-200`} />;
+  return <div ref={setNodeRef} className={`aspect-square w-full rounded-md border ${cellState}`} />;
 });
 
 const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceMode }: any) => {
@@ -73,7 +65,7 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceM
     opacity: isDragging && !isOverlay ? 0 : 1,
     touchAction: 'none' as const,
     zIndex: isOverlay ? 1000 : 1,
-    transition: performanceMode ? 'none' : 'transform 0.15s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease'
+    transition: performanceMode ? 'none' : 'transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease'
   };
 
   return (
@@ -81,8 +73,7 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceM
       <div className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${shape[0].length}, 1fr)` }}>
         {shape.map((row: any[], rIdx: number) => row.map((cell, cIdx) => (
           <div key={`${rIdx}-${cIdx}`} 
-            // Borde blanco leve (white/20) añadido aquí para resaltar la pieza
-            className={`w-[4.5vw] h-[4.5vw] max-w-[16px] max-h-[16px] rounded-sm ${cell ? `${color} border border-white/25 shadow-sm` : 'bg-transparent'}`} 
+            className={`w-[4.5vw] h-[4.5vw] max-w-[16px] max-h-[16px] rounded-sm ${cell ? `${color} border border-white/20` : 'bg-transparent'}`} 
           />
         )))}
       </div>
@@ -93,14 +84,13 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceM
 const PieceDock = ({ children }: { children: React.ReactNode }) => {
   const { setNodeRef } = useDroppable({ id: 'piece-dock' });
   return (
-    <div ref={setNodeRef} className="w-full max-w-[320px] h-28 flex justify-around items-center bg-white/10 rounded-[2rem] border border-white/10 backdrop-blur-md relative mb-6 shadow-l animate-pulse-border">
+    <div ref={setNodeRef} className="w-full max-w-[320px] h-28 flex justify-around items-center bg-black/10 rounded-[2rem] border border-white/10 backdrop-blur-md relative mb-6 shadow-xl">
       {children}
     </div>
   );
 };
 
 export default function App() {
-  // --- ESTADOS PRINCIPALES ---
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
@@ -109,12 +99,7 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(() => Number(localStorage.getItem('user-highscore')) || 0);
   const [displayScore, setDisplayScore] = useState(0);
-  
-  // Estados de estadísticas para el menú
   const [combo, setCombo] = useState(0);
-  const [maxCombo, setMaxCombo] = useState(0);
-  const [totalLines, setTotalLines] = useState(0);
-  
   const [lastBonus, setLastBonus] = useState<number | null>(null);
   const [isGameOver, setIsGameOver] = useState(false);
   const [preview, setPreview] = useState<any>(null);
@@ -127,7 +112,6 @@ export default function App() {
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  // --- LÓGICA DE JUEGO ---
   const changeTheme = useCallback(() => {
     setThemeIndex(prev => (prev + 1) % THEMES.length);
   }, []);
@@ -138,7 +122,7 @@ export default function App() {
         if (p >= 100) { clearInterval(interval); setTimeout(() => setIsLoading(false), 400); return 100; }
         return p + 5;
       });
-    }, 25);
+    }, 20);
     setAvailablePieces(getNewTransformedPieces());
     return () => clearInterval(interval);
   }, []);
@@ -156,19 +140,25 @@ export default function App() {
 
   useEffect(() => {
     if (displayScore < score) {
-      const step = performanceMode ? score - displayScore : Math.ceil((score - displayScore) / 10);
-      const timeout = setTimeout(() => setDisplayScore(p => Math.min(p + step, score)), 20);
-      return () => clearTimeout(timeout);
+      if (performanceMode) {
+        setDisplayScore(score);
+      } else {
+        const timeout = setTimeout(() => setDisplayScore(p => Math.min(p + 35, score)), 5);
+        return () => clearTimeout(timeout);
+      }
+    } else if (displayScore > score) {
+        setDisplayScore(score);
     }
   }, [score, displayScore, performanceMode]);
 
   const playSound = useCallback((url: string) => {
     if (isMuted) return;
     const audio = new Audio(url);
-    audio.volume = 0.15;
+    audio.volume = 0.1;
     audio.play().catch(() => {});
   }, [isMuted]);
 
+  // --- LOGICA SINCRONIZADA CON PIECES.TS Y ROTACIÓN ---
   function getNewTransformedPieces() {
     return getRandomPieces().map(p => {
       let currentShape = p.shape;
@@ -178,34 +168,26 @@ export default function App() {
           currentShape.map(row => row[index]).reverse()
         );
       }
-      return { ...p, id: `p-${Math.random()}`, shape: currentShape, color: p.color };
+
+      return { 
+        ...p, 
+        id: `p-${Math.random()}`, 
+        shape: currentShape,
+        color: p.color // Ahora respeta el color original de la pieza definida
+      };
     });
   }
 
-  const checkGameOver = (currentGrid: (string | null)[][], nextPieces: Piece[]) => {
-    return !nextPieces.some(p => {
-      for (let r = 0; r <= 8 - p.shape.length; r++) {
-        for (let c = 0; c <= 8 - p.shape[0].length; c++) {
-          let fits = true;
-          for (let i = 0; i < p.shape.length; i++) {
-            for (let j = 0; j < p.shape[i].length; j++) {
-              if (p.shape[i][j] && currentGrid[r + i][c + j]) { fits = false; break; }
-            }
-            if (!fits) break;
-          }
-          if (fits) return true;
-        }
-      }
-      return false;
-    });
-  };
-
   const handleReset = useCallback(() => {
     setGrid(Array(8).fill(null).map(() => Array(8).fill(null)));
-    setScore(0); setDisplayScore(0); setCombo(0); setLastBonus(null);
-    setMaxCombo(0); setTotalLines(0);
+    setScore(0);
+    setDisplayScore(0);
+    setCombo(0);
+    setLastBonus(null);
     setAvailablePieces(getNewTransformedPieces());
-    setIsGameOver(false); setShowMenu(false); setConfirmDelete(false);
+    setIsGameOver(false);
+    setShowMenu(false);
+    setConfirmDelete(false);
     setThemeIndex(Math.floor(Math.random() * THEMES.length));
   }, []);
 
@@ -215,7 +197,11 @@ export default function App() {
     setActiveId(null);
     setPreview(null);
 
-    if (!over || over.id === 'piece-dock' || !currentPreview?.isValid) return;
+    if (!over || over.id === 'piece-dock' || !currentPreview?.isValid) {
+      setCombo(0);
+      setLastBonus(null);
+      return;
+    }
 
     playSound(SOUNDS.place);
     const newGrid = grid.map(row => [...row]);
@@ -233,13 +219,13 @@ export default function App() {
       rClear.forEach(r => newGrid[r].fill(null));
       cClear.forEach(c => newGrid.forEach(r => r[c] = null));
       
+      // --- SISTEMA DE COMBO REPARADO ---
       const newCombo = combo + 1;
       setCombo(newCombo);
-      if (newCombo > maxCombo) setMaxCombo(newCombo);
       
-      const lines = rClear.length + cClear.length;
-      setTotalLines(prev => prev + lines);
-      const bonus = (lines * 150) * newCombo;
+      // Multiplica la base de 150 por el total de líneas y luego por el multiplicador del combo
+      const basePoints = (rClear.length + cClear.length) * 150;
+      const bonus = basePoints * newCombo;
       
       setLastBonus(bonus);
       playSound(SOUNDS.clear);
@@ -248,7 +234,8 @@ export default function App() {
       setTimeout(() => setLastBonus(null), 1200);
     } else {
       setCombo(0);
-      setScore(s => s + 20); 
+      setLastBonus(null);
+      setScore(s => s + 20); // Puntos base por pieza colocada
     }
 
     setGrid(newGrid);
@@ -256,15 +243,23 @@ export default function App() {
     const nextSet = remaining.length === 0 ? getNewTransformedPieces() : remaining;
     setAvailablePieces(nextSet);
     
-    if (checkGameOver(newGrid, nextSet)) {
-      setIsGameOver(true);
-      playSound(SOUNDS.gameOver);
-    }
+    const canPlaceAny = nextSet.some(p => {
+      for (let r = 0; r <= 8 - p.shape.length; r++) {
+        for (let c = 0; c <= 8 - p.shape[0].length; c++) {
+          let fits = true;
+          for (let i = 0; i < p.shape.length; i++) 
+            for (let j = 0; j < p.shape[i].length; j++) 
+              if (p.shape[i][j] && newGrid[r+i][c+j]) fits = false;
+          if (fits) return true;
+        }
+      }
+      return false;
+    });
+    if (!canPlaceAny) { setIsGameOver(true); playSound(SOUNDS.gameOver); }
   };
 
   const currentTheme = THEMES[themeIndex];
 
-  // --- RENDERIZADO DE CARGA ---
   if (isLoading) return (
     <div className="h-[100dvh] bg-[#0a0a0a] flex flex-col items-center justify-center p-8">
       <style>{animationStyles}</style>
@@ -273,30 +268,30 @@ export default function App() {
         <div className="text-[9px] font-bold text-white/30 tracking-[0.6em] mt-2 uppercase">Iniciando Sistema</div>
       </div>
       <div className="w-48 h-[2px] bg-white/5 rounded-full overflow-hidden">
-        <div className="h-full bg-white shadow-[0_0_15px_white] transition-all duration-300" style={{ width: `${loadingProgress}%` }} />
+        <div className="h-full bg-white shadow-[0_0_15px_white]" style={{ width: `${loadingProgress}%` }} />
       </div>
     </div>
   );
 
   return (
-    <div className={`h-[100dvh] w-full ${currentTheme.bg} flex flex-col items-center justify-between pb-6 pt-16 px-4 transition-colors duration-1000 overflow-hidden`}>
+    <div className={`h-[100dvh] w-full ${currentTheme.bg} flex flex-col items-center justify-between pb-6 pt-16 px-4 ${performanceMode ? '' : 'transition-colors duration-1000'} overflow-hidden`}>
       <style>{animationStyles}</style>
       
-      {/* HUD SUPERIOR */}
       <div className="w-full flex justify-between items-center max-w-[320px] z-20 mt-4">
         <div className="bg-black/20 px-3 py-1.5 rounded-xl border border-white/10 backdrop-blur-md">
-          <p className="text-[8px] font-black uppercase text-white/50 mb-1">Récord</p>
+          <p className="text-[8px] font-black uppercase text-white/50 leading-none mb-1">Récord</p>
           <p className="font-mono font-bold text-white text-base leading-none">{highScore}</p>
         </div>
-        <button onClick={() => setShowMenu(true)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/20 border border-white/20 active:scale-90 transition-transform shadow-lg">
-          <span className="text-lg text-white font-bold">☰</span>
+
+        <button onClick={() => { setShowMenu(true); setConfirmDelete(false); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/20 border border-white/20 active:scale-90 shadow-lg">
+          <span className="text-lg text-white">☰</span>
         </button>
       </div>
 
       {!gameStarted ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-12">
           <div className="text-center">
-            <h1 className="text-8xl font-black italic tracking-tighter text-white leading-[0.85] drop-shadow-2xl">AI<br/>BLOCK</h1>
+            <h1 className="text-8xl font-black italic tracking-tighter text-white leading-[0.85] drop-shadow-lg">AI<br/>BLOCK</h1>
           </div>
           <button onClick={() => setGameStarted(true)} className={`px-20 py-6 ${currentTheme.accent} font-black rounded-[2rem] shadow-2xl active:scale-95 transition-all text-xs tracking-[0.5em] uppercase`}>Jugar</button>
           <p className="text-[10px] text-white/40 font-bold tracking-[0.4em] uppercase">V 3.4 - ELAEHTDEV</p>
@@ -323,27 +318,25 @@ export default function App() {
           }}>
           
           <header className="flex items-center justify-center gap-4 py-2 relative w-full max-w-[400px]">
-            <h2 className="text-[18vw] sm:text-6xl font-black text-white tracking-tighter font-mono drop-shadow-md leading-none">
+            <h2 className="text-[18vw] sm:text-8xl font-black text-white tracking-tighter font-mono drop-shadow-md leading-none">
               {displayScore}
             </h2>
             
-            <div className="absolute left-[70%] top-[-10px] flex flex-col items-start pointer-events-none w-max z-30">
+            <div className="absolute left-[75%] top-0 flex flex-col gap-1 pointer-events-none w-max">
+              {combo > 1 && (
+                <div className="bg-yellow-400 text-black text-[10px] sm:text-xs px-2 py-0.5 rounded-lg font-black animate-fade-out-up shadow-xl border-2 border-black/10">
+                  X{combo}
+                </div>
+              )}
               {lastBonus && (
-                <div className="animate-fade-out-up flex flex-col items-center">
-                   {combo > 1 && (
-                    <span className="bg-yellow-400 text-black text-[10px] sm:text-[12px] px-2 py-0.5 rounded-md font-black shadow-xl mb-1 border border-black/10 scale-110">
-                      x{combo} CONSECUTIVO
-                    </span>
-                  )}
-                  <span className="text-white text-3xl sm:text-5xl font-black drop-shadow-[0_6px_10px_rgba(0,0,0,0.6)]">
-                    +{lastBonus}
-                  </span>
+                <div className="text-white text-xl sm:text-3xl font-black animate-fade-out-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+                  +{lastBonus}
                 </div>
               )}
             </div>
           </header>
 
-          <div className={`w-[88vw] max-w-[320px] p-4 rounded-[2rem] bg-white/2 border border-black/10 ${performanceMode ? '' : 'shadow-2xl backdrop-blur-sm'}`}>
+          <div className={`w-[88vw] max-w-[320px] p-2 rounded-[2rem] bg-black/10 border border-white/10 ${performanceMode ? '' : 'shadow-2xl backdrop-blur-sm'}`}>
             <div className="grid grid-cols-8 gap-1">
               {grid.map((row, r) => row.map((cellColor, c) => (
                 <BoardCell key={`${r}-${c}`} r={r} c={c} color={cellColor} performanceMode={performanceMode}
@@ -363,8 +356,8 @@ export default function App() {
 
           {isGameOver && (
             <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-              <div className="bg-white rounded-[3rem] p-10 text-center w-full max-w-[310px] shadow-2xl border border-white relative">
-                <p className="text-[10px] font-black uppercase opacity-30 tracking-[0.4em] mb-2">Puntaje Final</p>
+              <div className="bg-white rounded-[3rem] p-10 text-center w-full max-w-[310px] shadow-2xl border border-white relative overflow-hidden">
+                <p className="text-[10px] font-black uppercase opacity-30 tracking-[0.4em] mb-2">Resultado</p>
                 <div className="text-8xl font-black mb-8 text-stone-900 tracking-tighter font-mono">{score}</div>
                 <div className="grid grid-cols-2 gap-4 mb-8 border-y border-stone-100 py-4">
                   <div className="text-left">
@@ -372,8 +365,8 @@ export default function App() {
                     <p className="font-mono font-bold text-stone-800 text-base">{highScore}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[8px] font-bold uppercase opacity-40">Líneas</p>
-                    <p className="font-black text-emerald-600 text-base">{totalLines}</p>
+                    <p className="text-[8px] font-bold uppercase opacity-40">Estado</p>
+                    <p className="font-black text-emerald-600 text-[9px] uppercase">Guardado</p>
                   </div>
                 </div>
                 <button onClick={handleReset} className="w-full py-5 rounded-2xl bg-black text-white font-black text-[10px] tracking-widest active:scale-95 transition-all uppercase shadow-xl">Reintentar</button>
@@ -383,48 +376,33 @@ export default function App() {
         </DndContext>
       )}
 
-      {/* MENÚ LATERAL/MODAL */}
       {showMenu && (
         <div className="fixed inset-0 bg-black/95 z-[200] flex items-center justify-center p-8 backdrop-blur-2xl">
           <div className="w-full max-w-[280px] flex flex-col space-y-3">
-            <h3 className="text-4xl font-black italic text-white text-center uppercase mb-6 tracking-tighter">Ajustes</h3>
-            
-            {/* Bloque de estadísticas solicitado */}
-            <div className="grid grid-cols-2 gap-2 mb-2">
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-center">
-                <p className="text-[8px] text-white/40 uppercase font-black mb-1">Líneas</p>
-                <p className="text-xl font-bold text-white font-mono">{totalLines}</p>
-              </div>
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-center">
-                <p className="text-[8px] text-white/40 uppercase font-black mb-1">Max Combo</p>
-                <p className="text-xl font-bold text-white font-mono">x{maxCombo}</p>
-              </div>
-            </div>
-
+            <h3 className="text-4xl font-black italic text-white text-center uppercase mb-4 tracking-tighter">Ajustes</h3>
             <button onClick={() => setPerformanceMode(!performanceMode)} 
               className={`w-full py-5 rounded-2xl border font-bold flex justify-between px-8 items-center text-[9px] tracking-widest uppercase transition-all
-                ${performanceMode ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300' : 'bg-white/5 border-white/10 text-white'}`}>
-              Rendimiento <span>{performanceMode ? 'ALTO' : 'MIN'}</span>
+                ${performanceMode ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 'bg-white/5 border-white/10 text-white'}`}>
+              Rendimiento <span>{performanceMode ? 'ON' : 'OFF'}</span>
             </button>
-            <button onClick={() => setIsMuted(!isMuted)} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold flex justify-between px-8 items-center text-[9px] text-white tracking-widest uppercase active:bg-white/10">
-              Sonido <span>{isMuted ? 'MUDO' : 'ON'}</span>
+            <button onClick={() => setIsMuted(!isMuted)} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold flex justify-between px-8 items-center text-[9px] text-white tracking-widest uppercase">
+              Sonido <span>{isMuted ? 'Mudo' : 'Activado'}</span>
             </button>
-            <button onClick={handleReset} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left active:bg-white/10">Reiniciar Partida</button>
-            <button onClick={() => { setGameStarted(false); setShowMenu(false); }} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left active:bg-white/10">Ir al Inicio</button>
-            
-            <div className="pt-4">
+            <button onClick={handleReset} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left">Reiniciar</button>
+            <button onClick={() => { setGameStarted(false); setShowMenu(false); }} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left">Salir al Menú</button>
+            <div className="pt-2">
               {!confirmDelete ? (
-                <button onClick={() => setConfirmDelete(true)} className="w-full py-4 bg-red-600/10 border border-red-600/20 rounded-2xl text-red-500 font-black text-[9px] tracking-widest uppercase">Resetear Récord</button>
+                <button onClick={() => setConfirmDelete(true)} className="w-full py-4 bg-red-600/10 border border-red-600/20 rounded-2xl text-red-500 font-black text-[9px] tracking-widest uppercase">Borrar Récord</button>
               ) : (
                 <div className="flex gap-2">
                   <button onClick={() => { localStorage.removeItem('user-highscore'); setHighScore(0); setConfirmDelete(false); }} 
-                    className="flex-1 py-4 bg-red-600 text-white rounded-xl font-black text-[8px] uppercase">Borrar</button>
+                    className="flex-1 py-4 bg-red-600 text-white rounded-xl font-black text-[8px] uppercase">Confirmar</button>
                   <button onClick={() => setConfirmDelete(false)} 
                     className="flex-1 py-4 bg-white/10 text-white rounded-xl font-black text-[8px] uppercase">No</button>
                 </div>
               )}
             </div>
-            <button onClick={() => setShowMenu(false)} className="w-full py-7 rounded-[2.5rem] bg-white text-black font-black text-xs tracking-[0.4em] shadow-2xl mt-6 uppercase active:scale-95 transition-transform">Volver</button>
+            <button onClick={() => setShowMenu(false)} className="w-full py-7 rounded-[2.5rem] bg-white text-black font-black text-xs tracking-[0.4em] shadow-2xl mt-4 uppercase active:scale-95 transition-transform">Continuar</button>
           </div>
         </div>
       )}

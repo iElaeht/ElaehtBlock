@@ -84,7 +84,7 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceM
 const PieceDock = ({ children }: { children: React.ReactNode }) => {
   const { setNodeRef } = useDroppable({ id: 'piece-dock' });
   return (
-    <div ref={setNodeRef} className="w-full max-w-[320px] h-28 flex justify-around items-center bg-black/10 rounded-[2rem] border border-white/10 backdrop-blur-md relative mb-6 shadow-xl">
+    <div ref={setNodeRef} className="w-full max-w-[320px] h-28 flex justify-around items-center bg-black/10 rounded-[1.4rem] border border-white/10 backdrop-blur-md relative mb-6 shadow-xl">
       {children}
     </div>
   );
@@ -336,7 +336,7 @@ export default function App() {
             </div>
           </header>
 
-          <div className={`w-[88vw] max-w-[320px] p-2 rounded-[2rem] bg-black/10 border border-white/10 ${performanceMode ? '' : 'shadow-2xl backdrop-blur-sm'}`}>
+          <div className={`w-[88vw] max-w-[320px] p-3 rounded-[1.3rem] bg-black/10 border border-white/10 ${performanceMode ? '' : 'shadow-2xl backdrop-blur-sm'}`}>
             <div className="grid grid-cols-8 gap-1">
               {grid.map((row, r) => row.map((cellColor, c) => (
                 <BoardCell key={`${r}-${c}`} r={r} c={c} color={cellColor} performanceMode={performanceMode}

@@ -93,7 +93,7 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceM
 const PieceDock = ({ children }: { children: React.ReactNode }) => {
   const { setNodeRef } = useDroppable({ id: 'piece-dock' });
   return (
-    <div ref={setNodeRef} className="w-full max-w-[320px] h-28 flex justify-around items-center bg-black/10 rounded-[2.5rem] border border-white/10 backdrop-blur-md relative mb-6 shadow-xl animate-pulse-border">
+    <div ref={setNodeRef} className="w-full max-w-[320px] h-28 flex justify-around items-center bg-white/10 rounded-[2rem] border border-white/10 backdrop-blur-md relative mb-6 shadow-l animate-pulse-border">
       {children}
     </div>
   );
@@ -323,7 +323,7 @@ export default function App() {
           }}>
           
           <header className="flex items-center justify-center gap-4 py-2 relative w-full max-w-[400px]">
-            <h2 className="text-[18vw] sm:text-8xl font-black text-white tracking-tighter font-mono drop-shadow-md leading-none">
+            <h2 className="text-[18vw] sm:text-6xl font-black text-white tracking-tighter font-mono drop-shadow-md leading-none">
               {displayScore}
             </h2>
             
@@ -343,7 +343,7 @@ export default function App() {
             </div>
           </header>
 
-          <div className={`w-[88vw] max-w-[320px] p-2 rounded-[2rem] bg-black/10 border border-white/10 ${performanceMode ? '' : 'shadow-2xl backdrop-blur-sm'}`}>
+          <div className={`w-[88vw] max-w-[320px] p-4 rounded-[2rem] bg-white/2 border border-black/10 ${performanceMode ? '' : 'shadow-2xl backdrop-blur-sm'}`}>
             <div className="grid grid-cols-8 gap-1">
               {grid.map((row, r) => row.map((cellColor, c) => (
                 <BoardCell key={`${r}-${c}`} r={r} c={c} color={cellColor} performanceMode={performanceMode}
@@ -403,7 +403,7 @@ export default function App() {
 
             <button onClick={() => setPerformanceMode(!performanceMode)} 
               className={`w-full py-5 rounded-2xl border font-bold flex justify-between px-8 items-center text-[9px] tracking-widest uppercase transition-all
-                ${performanceMode ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 'bg-white/5 border-white/10 text-white'}`}>
+                ${performanceMode ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300' : 'bg-white/5 border-white/10 text-white'}`}>
               Rendimiento <span>{performanceMode ? 'ALTO' : 'MIN'}</span>
             </button>
             <button onClick={() => setIsMuted(!isMuted)} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold flex justify-between px-8 items-center text-[9px] text-white tracking-widest uppercase active:bg-white/10">

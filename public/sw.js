@@ -1,27 +1,35 @@
-const CACHE_NAME = 'ai-block-v2.9'; // Incrementamos versión
+const CACHE_NAME = 'ai-block-v3.4'; 
 
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/icons/manifest.json',
-  '/sounds/place.mp3',
-  '/sounds/clear.mp3',
-  '/sounds/gameOver.mp3',
-  '/icons/android-icon-192x192.png'
+  './',
+  './index.html',
+  './icons/site.webmanifest',
+  './sounds/bonus.mp3',      
+  './sounds/clear.mp3',
+  './sounds/gameOver.mp3',
+  './sounds/place.mp3',
+  './icons/favicon.svg',     
+  './icons/web-app-manifest-192x192.png',
+  './icons/web-app-manifest-512x512.png',
+  './icons/apple-touch-icon.png'
 ];
 
 // INSTALACIÓN
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Usamos addAll pero permitimos que falle si un archivo no existe
-      return cache.addAll(ASSETS_TO_CACHE).catch(err => console.warn("Fallo caché inicial:", err));
+      console.log('Instalando archivos en caché...');
+      return Promise.allSettled(
+        ASSETS_TO_CACHE.map(url => 
+          cache.add(url).catch(err => console.warn(`Error al cachear: ${url}`, err))
+        )
+      );
     })
   );
   self.skipWaiting();
 });
 
-// ACTIVACIÓN: Borra caches viejas inmediatamente
+// ACTIVACIÓN: Limpia lo viejo
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -30,28 +38,43 @@ self.addEventListener('activate', (event) => {
           if (key !== CACHE_NAME) return caches.delete(key);
         })
       );
-    }).then(() => self.clients.claim()) // Toma el control de la página YA
+    }).then(() => self.clients.claim())
   );
 });
 
-// FETCH: Estrategia Network First para el HTML y archivos críticos
+// FETCH: Estrategia de Entrega Offline Real
 self.addEventListener('fetch', (event) => {
-  // Solo interceptar peticiones GET
-  if (event.request.method !== 'GET') return;
+  // Ignoramos lo que no sea GET o sea desarrollo/extensiones
+  if (
+    event.request.method !== 'GET' || 
+    event.request.url.includes('chrome-extension') ||
+    event.request.url.includes('localhost') || 
+    event.request.url.includes('socket.io')
+  ) return;
 
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Si la red responde, guardamos una copia en caché
-        const resClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, resClone);
-        });
-        return response;
-      })
-      .catch(() => {
-        // Si falla la red (offline), buscamos en caché
-        return caches.match(event.request);
-      })
+    caches.match(event.request).then((cachedResponse) => {
+      // 1. Si está en caché, lo devolvemos de inmediato (Modo Offline instantáneo)
+      if (cachedResponse) {
+        // Opcional: Actualizamos la caché en segundo plano mientras el usuario juega
+        fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
+          }
+        }).catch(() => {}); // Fallo de red silencioso, ya servimos la caché
+
+        return cachedResponse;
+      }
+
+      // 2. Si no está en caché, intentamos ir a la red
+      return fetch(event.request).then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200) {
+          return networkResponse;
+        }
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+        return networkResponse;
+      });
+    })
   );
 });

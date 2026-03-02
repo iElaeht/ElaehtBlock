@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     
-    <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
-    <link rel="manifest" href="/icons/manifest.json">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+    
+    <link rel="manifest" href="/icons/site.webmanifest">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f172a" /> 
+    
+    <meta name="theme-color" content="#A8E6CF" /> 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
@@ -31,8 +32,7 @@
     </style>
 
     <script>
-      // --- SISTEMA DE AUTO-ACTUALIZACIÓN CRÍTICA ---
-      // Si un script falla (Error 404 de Vercel), borramos caché y recargamos
+      // --- SISTEMA DE AUTO-ACTUALIZACIÓN ---
       window.addEventListener('error', function(e) {
         if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
           console.warn('Archivo antiguo detectado. Limpiando cache...');
@@ -45,21 +45,21 @@
         }
       }, true);
 
-      // --- REGISTRO DE SERVICE WORKER CON CONTROL DE VERSION ---
+      // --- REGISTRO DE SERVICE WORKER ---
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').then(reg => {
-            // Si hay una actualización esperando, forzamos que tome el control
+          // Añadimos un pequeño timestamp para forzar la lectura del nuevo sw.js
+          navigator.serviceWorker.register('/sw.js?v=3.4').then(reg => {
             reg.onupdatefound = () => {
               const installingWorker = reg.installing;
               installingWorker.onstatechange = () => {
                 if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  console.log('Nueva versión detectada. Actualizando...');
+                  console.log('Versión 3.4 Detectada. Actualizando...');
                   window.location.reload();
                 }
               };
             };
-            console.log('AI BLOCK 2.9: Online');
+            console.log('AI BLOCK 3.4: Sistema Visual Actualizado');
           });
         });
       }

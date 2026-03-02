@@ -259,14 +259,14 @@ export default function App() {
     <div className={`h-[100dvh] w-full ${currentTheme.bg} flex flex-col items-center justify-between pb-6 pt-16 px-4 ${performanceMode ? '' : 'transition-colors duration-1000'} overflow-hidden`}>
       <style>{animationStyles}</style>
       
-      {/* HUD SUPERIOR - BAJADO */}
+      {/* HUD SUPERIOR */}
       <div className="w-full flex justify-between items-center max-w-[320px] z-20 mt-4">
         <div className="bg-black/20 px-3 py-1.5 rounded-xl border border-white/10 backdrop-blur-md">
           <p className="text-[8px] font-black uppercase text-white/50 leading-none mb-1">Récord</p>
           <p className="font-mono font-bold text-white text-base leading-none">{highScore}</p>
         </div>
 
-        <button onClick={() => { setShowMenu(true); setConfirmDelete(false); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/20 border border-white/20 active:scale-90 shadow-lg">
+        <button onClick={() => { setShowMenu(true); setConfirmDelete(false); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/20 border border-white/20 active:scale-90 shadow-lg transition-transform">
           <span className="text-lg text-white">☰</span>
         </button>
       </div>
@@ -277,7 +277,7 @@ export default function App() {
             <h1 className="text-8xl font-black italic tracking-tighter text-white leading-[0.85] drop-shadow-lg">AI<br/>BLOCK</h1>
           </div>
           <button onClick={() => setGameStarted(true)} className={`px-20 py-6 ${currentTheme.accent} font-black rounded-[2rem] shadow-2xl active:scale-95 transition-all text-xs tracking-[0.5em] uppercase`}>Jugar</button>
-          <p className="text-[10px] text-white/40 font-bold tracking-[0.4em] uppercase">V 3.2 - ELAEHTDEV</p>
+          <p className="text-[10px] text-white/40 font-bold tracking-[0.4em] uppercase">V 3.4 - ELAEHTDEV</p>
         </div>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} 
@@ -305,7 +305,6 @@ export default function App() {
               {displayScore}
             </h2>
             
-            {/* VENTANA FLOTANTE AL COSTADO DEL SCORE */}
             <div className="absolute left-[75%] top-0 flex flex-col gap-1 pointer-events-none w-max">
               {combo > 1 && (
                 <div className="bg-yellow-400 text-black text-[10px] sm:text-xs px-2 py-0.5 rounded-lg font-black animate-fade-out-up shadow-xl border-2 border-black/10">
@@ -338,12 +337,23 @@ export default function App() {
             {activeId ? <DraggablePiece id={activeId} shape={availablePieces.find(p => p.id === activeId)?.shape} color={availablePieces.find(p => p.id === activeId)?.color} isOverlay performanceMode={performanceMode} /> : null}
           </DragOverlay>
 
+          {/* GAME OVER ORIGINAL RESTAURADO */}
           {isGameOver && (
             <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
               <div className="bg-white rounded-[3rem] p-10 text-center w-full max-w-[310px] shadow-2xl border border-white relative overflow-hidden">
                 <p className="text-[10px] font-black uppercase opacity-30 tracking-[0.4em] mb-2">Resultado</p>
                 <div className="text-8xl font-black mb-8 text-stone-900 tracking-tighter font-mono">{score}</div>
-                <button onClick={handleReset} className="w-full py-5 rounded-2xl bg-black text-white font-black text-[10px] tracking-widest uppercase shadow-xl">Reintentar</button>
+                <div className="grid grid-cols-2 gap-4 mb-8 border-y border-stone-100 py-4">
+                  <div className="text-left">
+                    <p className="text-[8px] font-bold uppercase opacity-40">Récord</p>
+                    <p className="font-mono font-bold text-stone-800 text-base">{highScore}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[8px] font-bold uppercase opacity-40">Estado</p>
+                    <p className="font-black text-emerald-600 text-[9px] uppercase">Guardado</p>
+                  </div>
+                </div>
+                <button onClick={handleReset} className="w-full py-5 rounded-2xl bg-black text-white font-black text-[10px] tracking-widest active:scale-95 transition-all uppercase shadow-xl">Reintentar</button>
               </div>
             </div>
           )}
@@ -362,11 +372,13 @@ export default function App() {
               Rendimiento <span>{performanceMode ? 'ON' : 'OFF'}</span>
             </button>
 
-            <button onClick={() => setIsMuted(!isMuted)} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold flex justify-between px-8 items-center text-[9px] text-white tracking-widest uppercase">
+            <button onClick={() => setIsMuted(!isMuted)} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold flex justify-between px-8 items-center text-[9px] text-white tracking-widest uppercase active:bg-white/10 transition-colors">
               Sonido <span>{isMuted ? 'Mudo' : 'Activado'}</span>
             </button>
             
-            <button onClick={handleReset} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left">Reiniciar</button>
+            <button onClick={handleReset} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left active:bg-white/10 transition-colors">Reiniciar</button>
+            
+            <button onClick={() => { setGameStarted(false); setShowMenu(false); }} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left active:bg-white/10 transition-colors">Salir al Menú</button>
             
             <div className="pt-2">
               {!confirmDelete ? (
@@ -383,7 +395,7 @@ export default function App() {
               )}
             </div>
 
-            <button onClick={() => setShowMenu(false)} className="w-full py-7 rounded-[2.5rem] bg-white text-black font-black text-xs tracking-[0.4em] shadow-2xl mt-4 uppercase">Continuar</button>
+            <button onClick={() => setShowMenu(false)} className="w-full py-7 rounded-[2.5rem] bg-white text-black font-black text-xs tracking-[0.4em] shadow-2xl mt-4 uppercase active:scale-95 transition-transform">Continuar</button>
           </div>
         </div>
       )}

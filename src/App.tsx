@@ -8,7 +8,8 @@ import {
   useSensors,
   closestCenter,
   type DragEndEvent,
-  DragOverlay
+  DragOverlay,
+  defaultDropAnimationSideEffects
 } from '@dnd-kit/core';
 import { getRandomPieces, type Piece } from './logic/pieces';
 

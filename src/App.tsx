@@ -8,7 +8,7 @@ import {
   useSensors,
   closestCenter,
   type DragEndEvent,
-  DragOverlay,
+  DragOverlay
 } from '@dnd-kit/core';
 import { getRandomPieces, type Piece } from './logic/pieces';
 
@@ -41,7 +41,6 @@ const BoardCell = memo(({ r, c, color, isPreview, isInvalid }: any) => {
     return `bg-black/15 border-transparent`;
   }, [color, isPreview, isInvalid]);
 
-  // Sin transiciones CSS aquí para evitar lag en el repintado de la cuadrícula
   return <div ref={setNodeRef} className={`aspect-square w-full rounded-md border ${cellState}`} />;
 });
 
@@ -49,7 +48,7 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false }: any) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id });
   
   const style = {
-    // IMPORTANTE: Solo transform, sin transition: all para máxima fluidez táctil
+    // Eliminamos transiciones CSS durante el arrastre para fluidez total
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${isOverlay ? 0.95 : 0.75})` : 'scale(0.75)',
     opacity: isDragging && !isOverlay ? 0 : 1,
     touchAction: 'none' as const,
@@ -68,6 +67,15 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false }: any) => {
     </div>
   );
 });
+
+const PieceDock = ({ children }: { children: React.ReactNode }) => {
+  const { setNodeRef } = useDroppable({ id: 'piece-dock' });
+  return (
+    <div ref={setNodeRef} className="w-full max-w-[320px] h-28 flex justify-around items-center bg-black/10 rounded-[2rem] border border-white/10 backdrop-blur-md relative mb-6 shadow-xl">
+      {children}
+    </div>
+  );
+};
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -94,11 +102,10 @@ export default function App() {
     setThemeIndex(prev => (prev + 1) % THEMES.length);
   }, []);
 
-  // --- EFECTO DE CARGA ---
   useEffect(() => {
     const interval = setInterval(() => {
       setLoadingProgress(p => {
-        if (p >= 100) { clearInterval(interval); setTimeout(() => setIsLoading(false), 500); return 100; }
+        if (p >= 100) { clearInterval(interval); setTimeout(() => setIsLoading(false), 400); return 100; }
         return p + 5;
       });
     }, 20);
@@ -106,13 +113,11 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // --- LÓGICA DE SCORE Y RÉCORD ---
   useEffect(() => {
     if (score > highScore) {
       setHighScore(score);
       localStorage.setItem('user-highscore', score.toString());
     }
-    // Cambio automático cada 1000 puntos
     if (score > 0 && score % 1000 === 0) changeTheme();
   }, [score, highScore, changeTheme]);
 
@@ -183,7 +188,7 @@ export default function App() {
       setLastBonus(bonus);
       playSound(SOUNDS.clear);
       setScore(s => s + bonus);
-      changeTheme(); // Cambio de color al limpiar
+      changeTheme(); 
     } else {
       setCombo(0);
       setLastBonus(null);
@@ -227,7 +232,6 @@ export default function App() {
   return (
     <div className={`h-[100dvh] w-full ${currentTheme.bg} flex flex-col items-center justify-between pb-6 pt-6 px-4 transition-colors duration-1000 overflow-hidden`}>
       
-      {/* HUD SUPERIOR */}
       <div className="w-full flex justify-between items-center max-w-[320px] z-20">
         <div className="bg-black/20 px-3 py-1.5 rounded-xl border border-white/10 backdrop-blur-md">
           <p className="text-[8px] font-black uppercase text-white/50 leading-none mb-1">Récord</p>
@@ -239,7 +243,7 @@ export default function App() {
           {lastBonus && <span className="text-white text-xs font-black animate-bounce">+{lastBonus}</span>}
         </div>
 
-        <button onClick={() => setShowMenu(true)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/20 border border-white/20 active:scale-90 shadow-lg">
+        <button onClick={() => setShowMenu(true)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/20 border border-white/20 active:scale-90 transition-transform shadow-lg">
           <span className="text-lg text-white">☰</span>
         </button>
       </div>
@@ -247,10 +251,10 @@ export default function App() {
       {!gameStarted ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-12">
           <div className="text-center">
-            <h1 className="text-8xl font-black italic tracking-tighter text-white leading-[0.85] drop-shadow-xl">AI<br/>BLOCK</h1>
+            <h1 className="text-8xl font-black italic tracking-tighter text-white leading-[0.85] drop-shadow-lg">AI<br/>BLOCK</h1>
             <div className="mt-6 h-1.5 w-16 bg-white mx-auto rounded-full opacity-40"></div>
           </div>
-          <button onClick={() => setGameStarted(true)} className={`px-20 py-6 ${currentTheme.accent} font-black rounded-[2rem] shadow-2xl active:scale-95 text-xs tracking-[0.5em] uppercase`}>Jugar</button>
+          <button onClick={() => setGameStarted(true)} className={`px-20 py-6 ${currentTheme.accent} font-black rounded-[2rem] shadow-2xl active:scale-95 transition-all text-xs tracking-[0.5em] uppercase`}>Jugar</button>
           <p className="text-[10px] text-white/40 font-bold tracking-[0.4em] uppercase">V 2.9 - ELAEHTDEV</p>
         </div>
       ) : (
@@ -278,7 +282,6 @@ export default function App() {
             <h2 className="text-8xl font-black text-white tracking-tighter font-mono drop-shadow-md">{displayScore}</h2>
           </header>
 
-          {/* CUADRICULA DE JUEGO */}
           <div className="w-[88vw] max-w-[320px] p-2 rounded-[2rem] bg-black/10 border border-white/10 shadow-2xl backdrop-blur-sm">
             <div className="grid grid-cols-8 gap-1">
               {grid.map((row, r) => row.map((cellColor, c) => (
@@ -289,17 +292,15 @@ export default function App() {
             </div>
           </div>
 
-          {/* DOCK DE PIEZAS */}
-          <div className="w-full max-w-[320px] h-28 flex justify-around items-center bg-black/10 rounded-[2rem] border border-white/10 mb-6 shadow-xl backdrop-blur-md">
+          <PieceDock>
             {availablePieces.map(p => <DraggablePiece key={p.id} {...p} />)}
-          </div>
+          </PieceDock>
 
-          {/* DRAG OVERLAY: Sin animaciones de drop para fluidez total */}
+          {/* Eliminamos dropAnimation para fluidez absoluta */}
           <DragOverlay dropAnimation={null}>
             {activeId ? <DraggablePiece id={activeId} shape={availablePieces.find(p => p.id === activeId)?.shape} color={availablePieces.find(p => p.id === activeId)?.color} isOverlay /> : null}
           </DragOverlay>
 
-          {/* MODAL GAME OVER */}
           {isGameOver && (
             <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
               <div className="bg-white rounded-[3rem] p-10 text-center w-full max-w-[310px] shadow-2xl border border-white relative overflow-hidden">
@@ -315,35 +316,34 @@ export default function App() {
                     <p className="font-black text-emerald-600 text-[9px] uppercase">Guardado</p>
                   </div>
                 </div>
-                <button onClick={handleReset} className="w-full py-5 rounded-2xl bg-black text-white font-black text-[10px] tracking-widest active:scale-95 shadow-xl uppercase">Reintentar</button>
+                <button onClick={handleReset} className="w-full py-5 rounded-2xl bg-black text-white font-black text-[10px] tracking-widest active:scale-95 transition-all uppercase shadow-xl">Reintentar</button>
               </div>
             </div>
           )}
         </DndContext>
       )}
 
-      {/* MENÚ DE AJUSTES */}
       {showMenu && (
         <div className="fixed inset-0 bg-black/95 z-[200] flex items-center justify-center p-8 backdrop-blur-2xl">
           <div className="w-full max-w-[280px] flex flex-col space-y-4">
-            <h3 className="text-4xl font-black italic text-white tracking-tighter uppercase text-center mb-4">Ajustes</h3>
-            <button onClick={() => setIsMuted(!isMuted)} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold flex justify-between px-8 items-center text-[9px] text-white tracking-widest uppercase">
+            <h3 className="text-4xl font-black italic text-white text-center uppercase mb-6 tracking-tighter">Ajustes</h3>
+            <button onClick={() => setIsMuted(!isMuted)} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold flex justify-between px-8 items-center text-[9px] text-white tracking-widest uppercase active:bg-white/10">
               Sonido <span>{isMuted ? 'Mudo' : 'Activado'}</span>
             </button>
-            <button onClick={handleReset} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left">Reiniciar Partida</button>
-            <button onClick={() => { setGameStarted(false); setShowMenu(false); }} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left">Volver al Menú</button>
+            <button onClick={handleReset} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left">Reiniciar</button>
+            <button onClick={() => { setGameStarted(false); setShowMenu(false); }} className="w-full py-5 bg-white/5 rounded-2xl border border-white/10 font-bold text-[9px] text-white tracking-widest uppercase px-8 text-left">Salir al Menú</button>
             
             <div className="pt-4 border-t border-white/10 mt-2">
               {!confirmDelete ? (
                 <button onClick={() => setConfirmDelete(true)} className="w-full py-3 text-white/30 font-black text-[8px] tracking-widest uppercase text-center">Borrar Récords</button>
               ) : (
                 <div className="flex gap-2">
-                  <button onClick={() => { localStorage.removeItem('user-highscore'); setHighScore(0); setConfirmDelete(false); }} className="flex-1 py-4 bg-red-600 text-white rounded-xl font-black text-[8px] uppercase">Confirmar</button>
+                  <button onClick={() => { localStorage.removeItem('user-highscore'); setHighScore(0); setConfirmDelete(false); }} className="flex-1 py-4 bg-red-600 text-white rounded-xl font-black text-[8px] uppercase">Borrar</button>
                   <button onClick={() => setConfirmDelete(false)} className="flex-1 py-4 bg-white/10 text-white rounded-xl font-black text-[8px] uppercase">No</button>
                 </div>
               )}
             </div>
-            <button onClick={() => setShowMenu(false)} className="w-full py-7 rounded-[2.5rem] bg-white text-black font-black text-xs tracking-[0.4em] shadow-2xl active:scale-95 mt-8 uppercase">Continuar</button>
+            <button onClick={() => setShowMenu(false)} className="w-full py-7 rounded-[2.5rem] bg-white text-black font-black text-xs tracking-[0.4em] shadow-2xl active:scale-95 transition-transform mt-8 uppercase">Continuar</button>
           </div>
         </div>
       )}

@@ -52,7 +52,8 @@ const BoardCell = memo(({ r, c, color, isPreview, isInvalid, performanceMode }: 
   const { setNodeRef } = useDroppable({ id: `cell-${r}-${c}`, data: { r, c } });
   
   const cellState = useMemo(() => {
-    if (color) return `${color} border-white/30 ${performanceMode ? '' : 'shadow-[inset_0_0_8px_rgba(255,255,255,0.2)]'}`; 
+    // Agregamos border-white/20 para que los bloques colocados tengan ese relieve sutil
+    if (color) return `${color} border-white/20 ${performanceMode ? '' : 'shadow-[inset_0_0_8px_rgba(255,255,255,0.2)]'}`; 
     if (isPreview) {
         if (isInvalid) return 'bg-red-500/50 border-red-200';
         const previewOpacity = performanceMode ? 'bg-black/20' : 'bg-black/60';
@@ -80,7 +81,8 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceM
       <div className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${shape[0].length}, 1fr)` }}>
         {shape.map((row: any[], rIdx: number) => row.map((cell, cIdx) => (
           <div key={`${rIdx}-${cIdx}`} 
-            className={`w-[4.5vw] h-[4.5vw] max-w-[16px] max-h-[16px] rounded-sm ${cell ? `${color} border border-white/20 shadow-sm` : 'bg-transparent'}`} 
+            // Borde blanco leve (white/20) añadido aquí para resaltar la pieza
+            className={`w-[4.5vw] h-[4.5vw] max-w-[16px] max-h-[16px] rounded-sm ${cell ? `${color} border border-white/25 shadow-sm` : 'bg-transparent'}`} 
           />
         )))}
       </div>
@@ -91,7 +93,7 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceM
 const PieceDock = ({ children }: { children: React.ReactNode }) => {
   const { setNodeRef } = useDroppable({ id: 'piece-dock' });
   return (
-    <div ref={setNodeRef} className="w-full max-w-[320px] h-28 flex justify-around items-center bg-black/10 rounded-[2rem] border border-white/10 backdrop-blur-md relative mb-6 shadow-xl animate-pulse-border">
+    <div ref={setNodeRef} className="w-full max-w-[320px] h-28 flex justify-around items-center bg-black/10 rounded-[2.5rem] border border-white/10 backdrop-blur-md relative mb-6 shadow-xl animate-pulse-border">
       {children}
     </div>
   );
@@ -107,7 +109,12 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(() => Number(localStorage.getItem('user-highscore')) || 0);
   const [displayScore, setDisplayScore] = useState(0);
+  
+  // Estados de estadísticas para el menú
   const [combo, setCombo] = useState(0);
+  const [maxCombo, setMaxCombo] = useState(0);
+  const [totalLines, setTotalLines] = useState(0);
+  
   const [lastBonus, setLastBonus] = useState<number | null>(null);
   const [isGameOver, setIsGameOver] = useState(false);
   const [preview, setPreview] = useState<any>(null);
@@ -196,6 +203,7 @@ export default function App() {
   const handleReset = useCallback(() => {
     setGrid(Array(8).fill(null).map(() => Array(8).fill(null)));
     setScore(0); setDisplayScore(0); setCombo(0); setLastBonus(null);
+    setMaxCombo(0); setTotalLines(0);
     setAvailablePieces(getNewTransformedPieces());
     setIsGameOver(false); setShowMenu(false); setConfirmDelete(false);
     setThemeIndex(Math.floor(Math.random() * THEMES.length));
@@ -227,8 +235,10 @@ export default function App() {
       
       const newCombo = combo + 1;
       setCombo(newCombo);
+      if (newCombo > maxCombo) setMaxCombo(newCombo);
       
       const lines = rClear.length + cClear.length;
+      setTotalLines(prev => prev + lines);
       const bonus = (lines * 150) * newCombo;
       
       setLastBonus(bonus);
@@ -317,7 +327,6 @@ export default function App() {
               {displayScore}
             </h2>
             
-            {/* INDICADOR DE COMBO DINÁMICO */}
             <div className="absolute left-[70%] top-[-10px] flex flex-col items-start pointer-events-none w-max z-30">
               {lastBonus && (
                 <div className="animate-fade-out-up flex flex-col items-center">
@@ -334,7 +343,6 @@ export default function App() {
             </div>
           </header>
 
-          {/* TABLERO */}
           <div className={`w-[88vw] max-w-[320px] p-2 rounded-[2rem] bg-black/10 border border-white/10 ${performanceMode ? '' : 'shadow-2xl backdrop-blur-sm'}`}>
             <div className="grid grid-cols-8 gap-1">
               {grid.map((row, r) => row.map((cellColor, c) => (
@@ -345,7 +353,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* DOCK DE PIEZAS */}
           <PieceDock>
             {availablePieces.map(p => <DraggablePiece key={p.id} {...p} performanceMode={performanceMode} />)}
           </PieceDock>
@@ -354,7 +361,6 @@ export default function App() {
             {activeId ? <DraggablePiece id={activeId} shape={availablePieces.find(p => p.id === activeId)?.shape} color={availablePieces.find(p => p.id === activeId)?.color} isOverlay performanceMode={performanceMode} /> : null}
           </DragOverlay>
 
-          {/* PANTALLA GAME OVER */}
           {isGameOver && (
             <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
               <div className="bg-white rounded-[3rem] p-10 text-center w-full max-w-[310px] shadow-2xl border border-white relative">
@@ -366,8 +372,8 @@ export default function App() {
                     <p className="font-mono font-bold text-stone-800 text-base">{highScore}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[8px] font-bold uppercase opacity-40">Acción</p>
-                    <p className="font-black text-emerald-600 text-[9px] uppercase">Finalizado</p>
+                    <p className="text-[8px] font-bold uppercase opacity-40">Líneas</p>
+                    <p className="font-black text-emerald-600 text-base">{totalLines}</p>
                   </div>
                 </div>
                 <button onClick={handleReset} className="w-full py-5 rounded-2xl bg-black text-white font-black text-[10px] tracking-widest active:scale-95 transition-all uppercase shadow-xl">Reintentar</button>
@@ -382,6 +388,19 @@ export default function App() {
         <div className="fixed inset-0 bg-black/95 z-[200] flex items-center justify-center p-8 backdrop-blur-2xl">
           <div className="w-full max-w-[280px] flex flex-col space-y-3">
             <h3 className="text-4xl font-black italic text-white text-center uppercase mb-6 tracking-tighter">Ajustes</h3>
+            
+            {/* Bloque de estadísticas solicitado */}
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-center">
+                <p className="text-[8px] text-white/40 uppercase font-black mb-1">Líneas</p>
+                <p className="text-xl font-bold text-white font-mono">{totalLines}</p>
+              </div>
+              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-center">
+                <p className="text-[8px] text-white/40 uppercase font-black mb-1">Max Combo</p>
+                <p className="text-xl font-bold text-white font-mono">x{maxCombo}</p>
+              </div>
+            </div>
+
             <button onClick={() => setPerformanceMode(!performanceMode)} 
               className={`w-full py-5 rounded-2xl border font-bold flex justify-between px-8 items-center text-[9px] tracking-widest uppercase transition-all
                 ${performanceMode ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 'bg-white/5 border-white/10 text-white'}`}>

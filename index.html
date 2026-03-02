@@ -36,7 +36,6 @@
         user-select: none;
         -webkit-user-select: none;
         -webkit-tap-highlight-color: transparent;
-        /* Imprescindible para que el arrastre de piezas no mueva la pantalla */
         touch-action: none; 
       }
 
@@ -47,7 +46,6 @@
         height: 100%;
         background-color: #0f172a; 
         overflow: hidden;
-        /* Evita el efecto rebote y pull-to-refresh */
         overscroll-behavior: none;
         position: fixed; 
       }
@@ -57,6 +55,16 @@
         height: 100%;
       }
     </style>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Offline Ready: AI BLOCK 2.8'))
+            .catch(err => console.error('SW Error:', err));
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

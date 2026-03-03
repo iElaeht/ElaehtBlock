@@ -275,7 +275,7 @@ export default function App() {
   if (isLoading) return (
     <div className="h-[100dvh] bg-[#0a0a0a] flex flex-col items-center justify-center p-8 no-select">
       <style>{animationStyles}</style>
-      <h1 className="text-white text-5xl font-black italic tracking-tighter uppercase opacity-80 animate-pulse">AI BLOCK</h1>
+      <h1 className="text-white text-4xl font-black italic tracking-tighter uppercase opacity-80 animate-pulse">AI BLOCK</h1>
       <div className="w-48 h-[2px] bg-white/5 rounded-full overflow-hidden mt-12">
         <div className="h-full bg-white shadow-[0_0_15px_white]" style={{ width: `${loadingProgress}%` }} />
       </div>
@@ -298,7 +298,7 @@ export default function App() {
 
       {!gameStarted ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-33">
-          <h1 className="text-8xl font-black italic tracking-tighter text-white leading-[0.85] drop-shadow-lg">AI<br/>BLOCK</h1>
+          <h1 className="text-6xl font-black italic tracking-tighter text-white leading-[0.85] drop-shadow-lg">AI BLOCK</h1>
           <button onClick={() => { playSound(SOUNDS.click); setGameStarted(true); }} className={`px-20 py-6 ${currentTheme.accent} font-black rounded-[2rem] shadow-2xl active:scale-95 transition-all text-xs tracking-[0.5em] uppercase`}>Jugar</button>
           <p className="text-[11px] text-white/40 font-bold tracking-[0.4em] uppercase">Version: V 3.7 || ELAEHTDEV</p>
         </div>
@@ -324,7 +324,7 @@ export default function App() {
           }}>
           
           <header className="flex items-center justify-center gap-4 py-2 relative w-full max-w-[400px]">
-            <h2 className="text-[18vw] sm:text-5xl font-black text-white tracking-tighter font-mono drop-shadow-md leading-none">{displayScore}</h2>
+            <h2 className="text-[18vw] sm:text-6xl font-black text-white tracking-tighter font-mono drop-shadow-md leading-none">{displayScore}</h2>
             <div className="absolute left-[70%] top-0 flex flex-col gap-1 pointer-events-none w-max">
               {lastBonus && combo > 1 && <div className="bg-yellow-400 text-black text-[12px] px-3 py-1 rounded-lg font-black animate-fade-out-up shadow-xl border-2 border-black/10 flex items-center gap-1">X{combo}</div>}
               {lastBonus && <div className="text-white text-xl sm:text-3xl font-black animate-fade-out-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">+{lastBonus}</div>}

@@ -1,41 +1,40 @@
-# 🧩 Elaeht Block - AI Block Edition
+# 🧩 AI BLOCK - Elaeht Edition (v3.7)
 
-**Elaeht Block** es un emocionante juego de rompecabezas minimalista y futurista para web y dispositivos móviles, inspirado en el concepto de **Block Blast**. Desafía tu mente colocando piezas geométricas en un tablero de 8x8, completa filas y columnas para destruirlas y rompe récords antes de quedarte sin espacio.
+**AI BLOCK** es un rompecabezas minimalista de alto rendimiento diseñado para ofrecer una experiencia táctil instantánea y visualmente envolvente. esta versión v3.7 redefine la fluidez en dispositivos móviles mediante una optimización profunda del renderizado y una interfaz ergonómica.
 
-![Version](https://img.shields.io/badge/version-3.4.0-emerald.svg)
+![Version](https://img.shields.io/badge/version-3.7.0-blue.svg)
 ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)
 ![Capacitor](https://img.shields.io/badge/Capacitor-119EFF?style=flat&logo=capacitor&logoColor=white)
 
 ---
 
-## ✨ Características Principales (v3.4)
+## ✨ Características Principales (v3.7)
 
-* **Jugabilidad Infinita:** Mecánica clásica de arrastrar y soltar con generación inteligente de piezas.
-* **HUD Adaptable y Ergonómico:** Interfaz diseñada con **espaciado superior preventivo** para evitar bloqueos por notificaciones del sistema o cámaras frontales en dispositivos móviles.
-* **Visualización Dinámica de Puntos:** Ventana de **Bonus (+150)** y **Multiplicador de Combo** flotantes, ubicados estratégicamente al costado del puntaje para un feedback inmediato sin obstruir el juego.
-* **Atmósfera Dinámica:** Cambio automático de temas y colores al superar hitos de puntaje, creando una experiencia visual inmersiva.
-* **Sistema de Gestión Avanzado:** Menú de opciones completo con control de audio, reinicio rápido, salida al menú y borrado seguro de récord personal.
-* **Persistencia de Datos:** Tu récord se guarda automáticamente de forma local.
+* **Motor de Arrastre Ultra-Responsivo:** Implementación de `dnd-kit` con una distancia de activación de **1px**, eliminando cualquier retraso entre el movimiento del dedo y la pieza.
+* **Elevación Ergonómica (Offset):** Las piezas se posicionan **60px por encima** del punto de contacto durante el arrastre, permitiendo una visibilidad total del tablero sin que el dedo obstruya la jugada.
+* **HUD Inteligente:** Puntaje de gran formato con animaciones de **Bonus (+150)** y **Multiplicadores de Combo (X2, X3...)** situados estratégicamente para no interferir con el área de juego.
+* **Temas Dinámicos:** El fondo y los acentos del juego cambian automáticamente al completar líneas, manteniendo la experiencia visual fresca y motivadora.
+* **Gestión de Datos:** Sistema de persistencia local para el **High Score** y configuración de preferencias (Mute, Modo Rendimiento).
 
 ---
 
-## ⚡ Modo Rendimiento (Optimización de Hardware)
+## ⚡ Innovación: Modo Rendimiento Pro
 
-La versión 3.4 introduce un **Modo Rendimiento** alternable desde el menú, diseñado para dispositivos de gama media/baja o para usuarios que buscan la máxima precisión competitiva:
+La versión 3.7 introduce un rediseño total del **Modo Rendimiento**, ideal para sesiones competitivas o dispositivos con recursos limitados:
 
-* **Latencia Cero:** Elimina las transiciones y suavizados CSS de las piezas, permitiendo un arrastre instantáneo (1:1 con el dedo o mouse).
-* **Simplificación Visual:** Reduce la opacidad del preview en el tablero y elimina efectos de desenfoque (*backdrop-blur*) y sombras complejas para liberar recursos de la GPU.
-* **Ahorro de Batería:** Al reducir las animaciones constantes, el consumo energético del dispositivo disminuye significativamente durante sesiones largas de juego.
+* **Dual-Tone Visuals:** Al activar este modo, las piezas cambian de diseños complejos a una **paleta de colores planos y minimalistas** (Mate), reduciendo la carga de dibujo de la GPU.
+* **Zero Latency Engine:** Se desactivan todas las transiciones CSS y filtros de desenfoque (`backdrop-blur`), logrando una respuesta 1:1 absoluta.
+* **Hardware Acceleration:** Forzado de capas mediante `will-change: transform` para evitar el re-pintado (re-paint) innecesario del DOM durante el movimiento.
 
 ---
 
 ## 🚀 Tecnologías Utilizadas
 
-* **[React.js](https://react.dev/):** Estructura de componentes y gestión de estados complejos con Hooks.
-* **[Tailwind CSS](https://tailwindcss.com/):** Estilizado moderno, animaciones fluidas y diseño responsivo móvil.
-* **[dnd-kit](https://dnd-kit.com/):** Motor de alto rendimiento para la lógica de arrastrar y soltar.
-* **[Capacitor](https://capacitorjs.com/):** Puente nativo para la exportación y rendimiento en Android.
+* **[React.js](https://react.dev/):** Arquitectura de componentes con `memo` y `useMemo` para evitar re-renders innecesarios.
+* **[Tailwind CSS](https://tailwindcss.com/):** Estilizado de última generación con soporte para animaciones personalizadas.
+* **[dnd-kit](https://dnd-kit.com/):** El estándar de oro para lógica de arrastrar y soltar en la web moderna.
+* **[Capacitor](https://capacitorjs.com/):** Optimizado para empaquetado nativo en Android con rendimiento cercano al lenguaje C++.
 
 ---
 
@@ -43,8 +42,8 @@ La versión 3.4 introduce un **Modo Rendimiento** alternable desde el menú, dis
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone [https://github.com/tu-usuario/elaeht-block.git](https://github.com/tu-usuario/elaeht-block.git)
-    cd elaeht-block
+    git clone [https://github.com/tu-usuario/ai-block.git](https://github.com/tu-usuario/ai-block.git)
+    cd ai-block
     ```
 
 2.  **Instalar dependencias:**
@@ -61,29 +60,28 @@ La versión 3.4 introduce un **Modo Rendimiento** alternable desde el menú, dis
 
 ## 📱 Compilación para Android (APK)
 
-Para generar tu APK con la última configuración de la versión 3.4:
+Para generar el paquete optimizado de la versión 3.7:
 
-1.  **Generar Build de producción:**
+1.  **Build de producción:**
     ```bash
     npm run build
     ```
 
-2.  **Sincronizar con Capacitor:**
+2.  **Sincronizar:**
     ```bash
     npx cap sync android
     ```
 
-3.  **Compilar Release:**
-    En Android Studio, utiliza `Build > Generate Signed Bundle / APK`. Asegúrate de usar firmas **V1** y **V2** para compatibilidad con versiones antiguas de Android.
+3.  **Finalizar en Android Studio:**
+    Generar el APK firmado asegurando el uso de firmas **V1 y V2** para máxima compatibilidad con dispositivos de diversas gamas.
 
 ---
 
 ## 🎮 Mecánicas de Juego
 
-1.  **Colocación:** Arrastra las piezas al tablero. El sistema mostrará un **Preview sutil** (blanco si encaja, rojo si está bloqueado).
-2.  **Combos:** Limpia múltiples filas o columnas simultáneamente o de forma consecutiva para activar el multiplicador de combo.
-3.  **Ventana de Bonus:** Los puntos extra aparecerán flotando al lado del score principal con una animación de desvanecimiento hacia arriba.
-4.  **Gestión de Récords:** En el menú de ajustes, puedes borrar tu récord histórico mediante una confirmación roja de seguridad.
+1.  **Ubicación Precisa:** El sistema de **Preview Dinámico** muestra exactamente dónde caerá la pieza. Se torna rojo si el movimiento es inválido.
+2.  **Sistema de Combos:** Limpiar líneas de forma consecutiva aumenta el multiplicador, disparando el puntaje exponencialmente.
+3.  **Confirmación de Seguridad:** El borrado de récords en el menú de ajustes requiere una doble confirmación para evitar pérdidas accidentales.
 
 ---
 

@@ -39,16 +39,28 @@ const animationStyles = `
   }
 `;
 
-// PALETA DE COLORES MINIMALISTAS PARA MODO RENDIMIENTO
+// PALETA DE COLORES MINIMALISTAS PARA MODO RENDIMIENTO (CÁLIDOS MATE)
 const PERFORMANCE_COLORS: Record<string, string> = {
   'bg-blue-600': 'bg-blue-500',
-  'bg-emerald-600': 'bg-green-500',
+  'bg-emerald-600': 'bg-emerald-500',
   'bg-red-600': 'bg-red-500',
   'bg-purple-600': 'bg-purple-500',
   'bg-orange-600': 'bg-orange-500',
   'bg-cyan-600': 'bg-cyan-500',
   'bg-pink-600': 'bg-pink-500',
   'bg-indigo-600': 'bg-indigo-500',
+};
+
+// PALETA DE PIEZAS CORREGIDA: TONOS CÁLIDOS MATE, DESATURADOS Y SEGUROS (CRISTAL ESMERILADO)
+const PIECE_COLORS: Record<string, string> = {
+  'bg-blue-600': 'bg-[#7FB3D5]',   // Azul Acero Suave
+  'bg-emerald-600': 'bg-[#73C6B6]', // Verde Jade Mate
+  'bg-red-600': 'bg-[#E59866]',    // Terracota Suave
+  'bg-purple-600': 'bg-[#BB8FCE]', // Lavanda Grisáceo
+  'bg-orange-600': 'bg-[#F8C471]', // Arena Tostada
+  'bg-cyan-600': 'bg-[#83D0C9]',   // Turquesa Mate
+  'bg-pink-600': 'bg-[#F1948A]',   // Coral Suave
+  'bg-indigo-600': 'bg-[#85C1E9]', // Celeste Grisáceo
 };
 
 const SOUNDS = {
@@ -58,13 +70,18 @@ const SOUNDS = {
   click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
 };
 
+// --- NUEVOS TEMAS: GRADIENTES MINIMALISTAS CÁLIDOS, RICOS Y CÓMODOS (v3.8) ---
 const THEMES = [
-  { bg: 'bg-[#4F46E5]', text: 'text-white', accent: 'bg-white !text-[#4F46E5]', secondary: 'bg-white/20' }, 
-  { bg: 'bg-[#059669]', text: 'text-white', accent: 'bg-yellow-400 !text-emerald-900', secondary: 'bg-black/10' },
-  { bg: 'bg-[#DC2626]', text: 'text-white', accent: 'bg-black !text-white', secondary: 'bg-white/10' },
-  { bg: 'bg-[#7C3AED]', text: 'text-white', accent: 'bg-emerald-400 !text-purple-900', secondary: 'bg-white/10' },
-  { bg: 'bg-[#EA580C]', text: 'text-white', accent: 'bg-white !text-orange-600', secondary: 'bg-black/10' },
-  { bg: 'bg-[#0891B2]', text: 'text-white', accent: 'bg-white !text-cyan-600', secondary: 'bg-white/20' },
+  // De Terracota a Cobre Suave
+  { id: 'terracotta', bg: 'bg-gradient-to-br from-[#7B3F00] via-[#854E15] to-[#9A6038]', text: 'text-white/90', accent: 'bg-white/90 !text-[#7B3F00]', accentText: 'text-[#7B3F00]' },
+  // De Ocre Profundo a Arena Tostada
+  { id: 'ochre', bg: 'bg-gradient-to-br from-[#8A6632] via-[#A67C4A] to-[#C39A68]', text: 'text-white/90', accent: 'bg-white/90 !text-[#8A6632]', accentText: 'text-[#8A6632]' },
+  // De Sombra Quemada a Óxido Suave
+  { id: 'rust', bg: 'bg-gradient-to-br from-[#5D4037] via-[#795548] to-[#9A7363]', text: 'text-white/90', accent: 'bg-white/90 !text-[#5D4037]', accentText: 'text-[#5D4037]' },
+  // De Oria Profundo a Oro Viejo
+  { id: 'gold', bg: 'bg-gradient-to-br from-[#6A4F23] via-[#856C3B] to-[#A08853]', text: 'text-white/90', accent: 'bg-white/90 !text-[#6A4F23]', accentText: 'text-[#6A4F23]' },
+  // De Granate Suave a Rosa Polvoriento
+  { id: 'maroon', bg: 'bg-gradient-to-br from-[#6D4242] via-[#855D5D] to-[#9E7878]', text: 'text-white/90', accent: 'bg-white/90 !text-[#6D4242]', accentText: 'text-[#6D4242]' },
 ];
 
 // --- COMPONENTES OPTIMIZADOS ---
@@ -74,25 +91,27 @@ const BoardCell = memo(({ r, c, color, isPreview, isInvalid, performanceMode }: 
   
   const cellState = useMemo(() => {
     if (color) {
-      const activeColor = performanceMode ? (PERFORMANCE_COLORS[color] || color) : color;
-      return `${activeColor} border-white/30 ${performanceMode ? '' : 'shadow-[inset_0_0_8px_rgba(255,255,255,0.2)]'}`; 
+      const activeColor = performanceMode ? (PERFORMANCE_COLORS[color] || color) : (PIECE_COLORS[color] || color);
+      // Resaltado notable con borde blanco transparente (estilo cristal)
+      return `${activeColor} border-white/40 ring-1 ring-white/10 ${performanceMode ? '' : 'shadow-sm'}`; 
     }
     if (isPreview) {
-        if (isInvalid) return 'bg-red-500/50 border-red-200';
-        const previewOpacity = performanceMode ? 'bg-black/20' : 'bg-black/60';
-        return `${previewOpacity} border-white border-2 z-10 ${performanceMode ? '' : 'scale-105'}`; 
+        if (isInvalid) return 'bg-red-500/40 border-red-300/50';
+        const previewOpacity = performanceMode ? 'bg-white/10' : 'bg-white/20';
+        return `${previewOpacity} border-white/60 border-2 z-10 ${performanceMode ? '' : 'scale-105'}`; 
     }
-    return `bg-black/15 border-transparent`;
+    // Fondo de celda suave y adaptable (cristal esmerilado)
+    return `bg-white/10 border-white/5`;
   }, [color, isPreview, isInvalid, performanceMode]);
 
-  return <div ref={setNodeRef} className={`aspect-square w-full rounded-md border ${cellState}`} />;
+  return <div ref={setNodeRef} className={`aspect-square w-full rounded-lg border ${cellState}`} />;
 });
 
 const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceMode }: any) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id });
   
   const activeColor = useMemo(() => {
-    return performanceMode ? (PERFORMANCE_COLORS[color] || color) : color;
+    return performanceMode ? (PERFORMANCE_COLORS[color] || color) : (PIECE_COLORS[color] || color);
   }, [color, performanceMode]);
 
   const style = {
@@ -110,7 +129,7 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceM
       <div className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${shape[0].length}, 1fr)` }}>
         {shape.map((row: any[], rIdx: number) => row.map((cell, cIdx) => (
           <div key={`${rIdx}-${cIdx}`} 
-            className={`w-[4.5vw] h-[4.5vw] max-w-[16px] max-h-[16px] rounded-sm ${cell ? `${activeColor} border border-white/20` : 'bg-transparent'}`} 
+            className={`w-[4.5vw] h-[4.5vw] max-w-[16px] max-h-[16px] rounded-sm ${cell ? `${activeColor} border border-white/40 shadow-sm ring-1 ring-white/10` : 'bg-transparent'}`} 
           />
         )))}
       </div>
@@ -121,11 +140,13 @@ const DraggablePiece = memo(({ id, shape, color, isOverlay = false, performanceM
 const PieceDock = ({ children, performanceMode }: any) => {
   const { setNodeRef } = useDroppable({ id: 'piece-dock' });
   return (
-    <div ref={setNodeRef} className={`w-full max-w-[320px] h-28 flex justify-around items-center bg-black/10 rounded-[1.4rem] border border-white/10 relative mb-6 shadow-xl ${performanceMode ? '' : 'backdrop-blur-md'}`}>
+    <div ref={setNodeRef} className={`w-full max-w-[320px] h-28 flex justify-around items-center bg-white/15 rounded-[1.4rem] border border-white/10 relative mb-6 ${performanceMode ? '' : 'backdrop-blur-md shadow-xl'}`}>
       {children}
     </div>
   );
 };
+
+// --- COMPONENTE PRINCIPAL ---
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -146,7 +167,7 @@ export default function App() {
   const [showMenu, setShowMenu] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [themeIndex, setThemeIndex] = useState(0);
+  const [themeIndex, setThemeIndex] = useState(() => Math.floor(Math.random() * THEMES.length));
   const [performanceMode, setPerformanceMode] = useState(() => localStorage.getItem('performance-mode') === 'true');
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 1 } }));
@@ -159,7 +180,7 @@ export default function App() {
   }, [isMuted]);
 
   const changeTheme = useCallback(() => {
-    setThemeIndex(prev => (prev + 1) % THEMES.length);
+    setThemeIndex(Math.floor(Math.random() * THEMES.length));
   }, []);
 
   useEffect(() => {
@@ -218,8 +239,8 @@ export default function App() {
     setScore(0); setDisplayScore(0); setCombo(0); setMaxCombo(0);
     setLinesCleared(0); setLastBonus(null); setAvailablePieces(getNewTransformedPieces());
     setIsGameOver(false); setShowMenu(false); setConfirmDelete(false);
-    setThemeIndex(Math.floor(Math.random() * THEMES.length));
-  }, [playSound]);
+    changeTheme(); // Cambiar gradiente cálido al reiniciar
+  }, [playSound, changeTheme]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { over, active } = event;
@@ -273,7 +294,7 @@ export default function App() {
   const currentTheme = THEMES[themeIndex];
 
   if (isLoading) return (
-    <div className="h-[100dvh] bg-[#0a0a0a] flex flex-col items-center justify-center p-8 no-select">
+    <div className="h-[100dvh] bg-[#3E2723] flex flex-col items-center justify-center p-8 no-select">
       <style>{animationStyles}</style>
       <h1 className="text-white text-4xl font-black italic tracking-tighter uppercase opacity-80 animate-pulse">AI BLOCK</h1>
       <div className="w-48 h-[2px] bg-white/5 rounded-full overflow-hidden mt-12">
@@ -283,24 +304,24 @@ export default function App() {
   );
 
   return (
-    <div className={`h-[100dvh] w-full ${currentTheme.bg} flex flex-col items-center justify-between pb-6 pt-16 px-4 ${performanceMode ? '' : 'transition-colors duration-1000'} overflow-hidden no-select`}>
+    <div className={`h-[100dvh] w-full ${currentTheme.bg} flex flex-col items-center justify-between pb-6 pt-16 px-4 transition-colors duration-1000 overflow-hidden no-select`}>
       <style>{animationStyles}</style>
       
-      <div className="w-full flex justify-between items-center max-w-[320px] z-20 mt-4">
-        <div className={`bg-black/20 px-3 py-1.5 rounded-xl border border-white/10 ${performanceMode ? '' : 'backdrop-blur-md'}`}>
+      <div className="w-full flex justify-between items-center max-w-[320px] z-20 mt-4 px-2">
+        <div className={`bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 ${performanceMode ? '' : 'backdrop-blur-md'}`}>
           <p className="text-[8px] font-black uppercase text-white/50 mb-1 leading-none">Récord</p>
           <p className="font-mono font-bold text-white text-base leading-none">{highScore}</p>
         </div>
-        <button onClick={() => { playSound(SOUNDS.click); setShowMenu(true); setConfirmDelete(false); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/20 border border-white/20 active:scale-90 shadow-lg">
-          <span className="text-lg text-white">≡</span>
+        <button onClick={() => { playSound(SOUNDS.click); setShowMenu(true); setConfirmDelete(false); }} className={`w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 active:scale-90 shadow-lg`}>
+          <span className={`text-lg text-white/90`}>≡</span>
         </button>
       </div>
 
       {!gameStarted ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-33">
-          <h1 className="text-6xl font-black italic tracking-tighter text-white leading-[0.85] drop-shadow-lg">AI BLOCK</h1>
+          <h1 className={`text-6xl font-black italic tracking-tighter ${currentTheme.text} leading-[0.85] drop-shadow-lg`}>AI BLOCK</h1>
           <button onClick={() => { playSound(SOUNDS.click); setGameStarted(true); }} className={`px-20 py-6 ${currentTheme.accent} font-black rounded-[2rem] shadow-2xl active:scale-95 transition-all text-xs tracking-[0.5em] uppercase`}>Jugar</button>
-          <p className="text-[11px] text-white/40 font-bold tracking-[0.4em] uppercase">Version: V 3.7 || ELAEHTDEV</p>
+          <p className={`text-[11px] ${currentTheme.text} opacity-50 font-bold tracking-[0.4em] uppercase`}>V 3.8 || ELAEHTDEV</p>
         </div>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} 
@@ -324,14 +345,14 @@ export default function App() {
           }}>
           
           <header className="flex items-center justify-center gap-4 py-2 relative w-full max-w-[400px]">
-            <h2 className="text-[18vw] sm:text-6xl font-black text-white tracking-tighter font-mono drop-shadow-md leading-none">{displayScore}</h2>
+            <h2 className={`text-[18vw] sm:text-6xl font-black ${currentTheme.text} tracking-tighter font-mono drop-shadow-md leading-none`}>{displayScore}</h2>
             <div className="absolute left-[70%] top-0 flex flex-col gap-1 pointer-events-none w-max">
               {lastBonus && combo > 1 && <div className="bg-yellow-400 text-black text-[12px] px-3 py-1 rounded-lg font-black animate-fade-out-up shadow-xl border-2 border-black/10 flex items-center gap-1">X{combo}</div>}
-              {lastBonus && <div className="text-white text-xl sm:text-3xl font-black animate-fade-out-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">+{lastBonus}</div>}
+              {lastBonus && <div className={`text-white text-xl sm:text-3xl font-black animate-fade-out-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]`}>+{lastBonus}</div>}
             </div>
           </header>
 
-          <div className={`w-[88vw] max-w-[320px] p-3 rounded-[1.3rem] bg-black/10 border border-white/10 ${performanceMode ? '' : 'shadow-2xl backdrop-blur-sm'}`}>
+          <div className={`w-[88vw] max-w-[320px] p-3 rounded-[1.3rem] bg-white/15 border border-white/10 ${performanceMode ? '' : 'shadow-2xl backdrop-blur-sm'}`}>
             <div className="grid grid-cols-8 gap-1">
               {grid.map((row, r) => row.map((cellColor, c) => (
                 <BoardCell key={`${r}-${c}`} r={r} c={c} color={cellColor} performanceMode={performanceMode}
@@ -350,15 +371,15 @@ export default function App() {
           </DragOverlay>
 
           {isGameOver && (
-            <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-              <div className="bg-white rounded-[3rem] p-10 text-center w-full max-w-[310px] shadow-2xl border border-white relative overflow-hidden">
+            <div className={`fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md`}>
+              <div className={`bg-white rounded-[3rem] p-10 text-center w-full max-w-[310px] shadow-2xl border border-stone-200 relative overflow-hidden`}>
                 <p className="text-[11px] font-black uppercase opacity-30 tracking-[0.4em] mb-2">Resultado</p>
                 <div className="text-6xl font-black mb-8 text-stone-900 tracking-tighter font-mono">{score}</div>
                 <div className="grid grid-cols-2 gap-4 mb-8 border-y border-stone-100 py-4">
                   <div className="text-left"><p className="text-[9px] font-bold uppercase opacity-40">Récord</p><p className="font-mono font-bold text-stone-800 text-base">{highScore}</p></div>
                   <div className="text-right"><p className="text-[9px] font-bold uppercase opacity-40">Estado</p><p className="font-black text-emerald-600 text-[9px] uppercase">Guardado</p></div>
                 </div>
-                <button onClick={handleReset} className="w-full py-5 rounded-2xl bg-black text-white font-black text-[10px] tracking-widest active:scale-95 transition-all uppercase shadow-xl">Reintentar</button>
+                <button onClick={handleReset} className="w-full py-5 rounded-2xl bg-stone-900 text-white font-black text-[10px] tracking-widest active:scale-95 transition-all uppercase shadow-xl">Reintentar</button>
               </div>
             </div>
           )}
@@ -366,7 +387,7 @@ export default function App() {
       )}
 
       {showMenu && (
-        <div className={`fixed inset-0 z-[200] flex items-center justify-center p-8 transition-all ${performanceMode ? 'bg-black/60' : 'bg-black/90 backdrop-blur-2xl'}`}>
+        <div className={`fixed inset-0 z-[200] flex items-center justify-center p-8 transition-all ${performanceMode ? 'bg-black/60' : 'bg-black/80 backdrop-blur-2xl'}`}>
           <div className="w-full max-w-[280px] flex flex-col">
             <div className="mb-6 text-center">
               <h3 className="text-4xl font-black italic text-white uppercase tracking-tighter">AJUSTES</h3>
@@ -413,7 +434,7 @@ export default function App() {
             </div>
 
             <button onClick={() => { playSound(SOUNDS.click); setShowMenu(false); }} 
-              className="w-full py-5 rounded-2xl bg-white text-black font-black text-[10px] tracking-[0.4em] shadow-xl mt-6 uppercase active:scale-95 transition-transform">
+              className={`w-full py-5 rounded-2xl bg-white ${currentTheme.accentText} font-black text-[10px] tracking-[0.4em] shadow-xl mt-6 uppercase active:scale-95 transition-transform`}>
               Volver
             </button>
           </div>

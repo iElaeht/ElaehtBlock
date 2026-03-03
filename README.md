@@ -1,15 +1,15 @@
-# 🧩 AI BLOCK - Elaeht Edition (v3.7)
+# 🧩 AI BLOCK - Elaeht Edition (v3.8)
 
-**AI BLOCK** es un rompecabezas minimalista de alto rendimiento diseñado para ofrecer una experiencia táctil instantánea y visualmente envolvente. esta versión v3.7 redefine la fluidez en dispositivos móviles mediante una optimización profunda del renderizado y una interfaz ergonómica.
+**AI BLOCK** es un rompecabezas minimalista de alto rendimiento diseñado para ofrecer una experiencia táctil instantánea y visualmente envolvente. esta versión v3.8 redefine la fluidez en dispositivos móviles mediante una optimización profunda del renderizado y una interfaz ergonómica.
 
-![Version](https://img.shields.io/badge/version-3.7.0-blue.svg)
+![Version](https://img.shields.io/badge/version-3.8.0-blue.svg)
 ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)
 ![Capacitor](https://img.shields.io/badge/Capacitor-119EFF?style=flat&logo=capacitor&logoColor=white)
 
 ---
 
-## ✨ Características Principales (v3.7)
+## ✨ Características Principales (v3.8)
 
 * **Motor de Arrastre Ultra-Responsivo:** Implementación de `dnd-kit` con una distancia de activación de **1px**, eliminando cualquier retraso entre el movimiento del dedo y la pieza.
 * **Elevación Ergonómica (Offset):** Las piezas se posicionan **60px por encima** del punto de contacto durante el arrastre, permitiendo una visibilidad total del tablero sin que el dedo obstruya la jugada.
@@ -21,7 +21,7 @@
 
 ## ⚡ Innovación: Modo Rendimiento Pro
 
-La versión 3.7 introduce un rediseño total del **Modo Rendimiento**, ideal para sesiones competitivas o dispositivos con recursos limitados:
+La versión 3.8 introduce un rediseño total del **Modo Rendimiento**, ideal para sesiones competitivas o dispositivos con recursos limitados:
 
 * **Dual-Tone Visuals:** Al activar este modo, las piezas cambian de diseños complejos a una **paleta de colores planos y minimalistas** (Mate), reduciendo la carga de dibujo de la GPU.
 * **Zero Latency Engine:** Se desactivan todas las transiciones CSS y filtros de desenfoque (`backdrop-blur`), logrando una respuesta 1:1 absoluta.
@@ -60,7 +60,7 @@ La versión 3.7 introduce un rediseño total del **Modo Rendimiento**, ideal par
 
 ## 📱 Compilación para Android (APK)
 
-Para generar el paquete optimizado de la versión 3.7:
+Para generar el paquete optimizado de la versión 3.8:
 
 1.  **Build de producción:**
     ```bash

@@ -101,7 +101,7 @@ export const LoadingScreen = ({ onFinished }: LoadingScreenProps) => {
             Sincronizando
           </motion.span>
           <span className="text-[8px] font-bold text-white/30 uppercase mt-2 tracking-widest">
-            AI MANGAS V3.8
+            AI BLOCK V4.0
           </span>
         </div>
       </div>

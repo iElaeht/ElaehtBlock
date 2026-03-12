@@ -1,24 +1,41 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
-  /* Evita que el celular intente seleccionar texto o mostrar lupas al jugar */
   * {
     -webkit-tap-highlight-color: transparent;
     user-select: none;
-    touch-action: manipulation;
+    touch-action: none;
+    box-sizing: border-box;
+  }
+
+  html, body, #root {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: transparent; 
   }
 
   body {
-    @apply bg-black overflow-hidden m-0 p-0;
-    /* Fuerza al navegador del Honor a usar la GPU para toda la app */
+    background-color: #0a0a0a; 
+    @apply m-0 p-0;
     transform: translateZ(0);
+    /* Opcional: puedes ponerla por defecto en todo el body o solo usar la clase */
   }
 }
 
-/* Esta clase es ORO para el rendimiento en móviles de gama media */
+/* --- CLASE PARA AI MANGAS --- */
+.font-arcade {
+  font-family: 'Press Start 2P', system-ui, cursive;
+}
+
 .gpu-accelerated {
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
-  perspective: 1000px;
 }

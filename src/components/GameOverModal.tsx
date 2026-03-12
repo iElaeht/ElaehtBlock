@@ -90,7 +90,7 @@ export const GameOverModal = ({
 
         {/* FOOTER - Muy pequeño */}
         <p className="mt-4 text-[7px] font-black opacity-20 tracking-[0.4em] uppercase">
-          AI Mangas Core
+          Game Over
         </p>
       </motion.div>
     </motion.div>

@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo } from "react";
+/* src/App.tsx */
+import { useState, useCallback, useMemo, useRef } from "react";
 import { 
   DndContext, 
   PointerSensor, 
@@ -37,13 +38,11 @@ import { useCoins } from "./hooks/useCoins";
 // Tipos
 import { type PreviewData } from "./types";
 
-const FORZAR_MODAL_DISEÑO = false; 
-
 export default function App() {
   const { theme, performanceMode, changeTheme, togglePerformance } = useTheme();
   const { playSound, isMuted, toggleMute } = useAudio();
   const { coins, addCoins, spendCoins } = useCoins(); 
-  const game = useGameLogic(playSound, changeTheme, addCoins, spendCoins);
+  const game = useGameLogic(playSound, changeTheme, addCoins, spendCoins, performanceMode);
 
   const [isLoading, setIsLoading] = useState(true);
   const [gameStarted, setGameStarted] = useState(false);
@@ -51,69 +50,82 @@ export default function App() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [preview, setPreview] = useState<PreviewData | null>(null);
 
-  // OPTIMIZACIÓN 1: Sensor de alta fidelidad
+  const lastCellRef = useRef<{r: number, c: number} | null>(null);
+
+  // SENSORES: Optimizado para evitar lag en el primer toque
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 1 }, 
+      activationConstraint: { distance: 8 }, // Un poco más de margen para evitar drags accidentales al hacer scroll
     })
   );
 
-  // OPTIMIZACIÓN 2: Modificador de la v3.8 para precisión visual
+  // MODIFICADOR: Centrado inteligente para estilo Neón
+  // Elevamos la pieza solo 20px para que el dedo no tape el "holograma"
   const smartCenterModifier: Modifier = useCallback(({ transform }) => {
     return {
       ...transform,
       x: transform.x,
-      // Elevación de -20px para que la pieza pequeña se vea justo sobre el dedo
       y: transform.y - 20, 
     };
   }, []);
 
-  // OPTIMIZACIÓN 3: Lógica Smart-Snap (Cero lag en preview)
+  // LÓGICA DE PREVIEW: Corregida para centrar la pieza en el cursor
   const handleDragOver = useCallback((e: DragOverEvent) => {
     const { over, active } = e;
     
     if (!over || over.id === "piece-dock") {
-      if (preview) setPreview(null);
+      if (lastCellRef.current) {
+        lastCellRef.current = null;
+        setPreview(null);
+      }
       return;
     }
 
-    const piece = game.availablePieces.find((p) => p.id === active.id);
-    if (!piece || !over.data.current) return;
-
     const { r: dR, c: dC } = over.data.current as { r: number; c: number };
 
-    // Cálculo basado en el centro dinámico de la pieza
-    const sR = Math.max(0, Math.min(dR - Math.floor(piece.shape.length / 2), 8 - piece.shape.length));
-    const sC = Math.max(0, Math.min(dC - Math.floor(piece.shape[0].length / 2), 8 - piece.shape[0].length));
+    // Solo recalcular si cambiamos de celda real (Optimización de CPU)
+    if (lastCellRef.current?.r === dR && lastCellRef.current?.c === dC) return;
+    lastCellRef.current = { r: dR, c: dC };
 
-    // Solo actualizamos el estado si la pieza saltó a otra celda
-    if (!preview || preview.r !== sR || preview.c !== sC) {
-      const isValid = !piece.shape.some((row, i) =>
-        row.some((cell, j) => {
-          if (!cell) return false;
-          const gridRow = game.grid[sR + i];
-          return gridRow && gridRow[sC + j] !== null;
-        })
-      );
+    const piece = game.availablePieces.find((p) => p.id === active.id);
+    if (!piece) return;
 
-      setPreview({ 
-        r: sR, 
-        c: sC, 
-        shape: piece.shape, 
-        color: piece.color, 
-        isValid 
-      });
-    }
-  }, [game.availablePieces, game.grid, preview]);
+    // Centramos el preview restando la mitad de la forma de la pieza
+    const offsetR = Math.floor(piece.shape.length / 2);
+    const offsetC = Math.floor(piece.shape[0].length / 2);
+
+    // Limitamos la posición para que no se salga del grid 8x8
+    const sR = Math.max(0, Math.min(dR - offsetR, 8 - piece.shape.length));
+    const sC = Math.max(0, Math.min(dC - offsetC, 8 - piece.shape[0].length));
+
+    // Validación de colisión ultra-rápida
+    const isValid = !piece.shape.some((row, i) =>
+      row.some((cell, j) => {
+        if (!cell) return false;
+        const gridRow = game.grid[sR + i];
+        return gridRow && gridRow[sC + j] !== null;
+      })
+    );
+
+    setPreview({ 
+      r: sR, 
+      c: sC, 
+      shape: piece.shape, 
+      color: piece.color, 
+      isValid 
+    });
+  }, [game.availablePieces, game.grid]);
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active } = event;
     if (preview?.isValid) {
       game.placePiece(preview, active.id as string);
+      playSound(SOUNDS.place); // Sonido de feedback al colocar
     }
     setActiveId(null);
     setPreview(null);
-  }, [preview, game]);
+    lastCellRef.current = null;
+  }, [preview, game, playSound]);
 
   const activePiece = useMemo(() => 
     game.availablePieces.find(p => p.id === activeId), 
@@ -125,7 +137,7 @@ export default function App() {
     <GameLayout>
       <GameBackground themeBg={theme.bg} themeId={theme.id} />
       
-      <div className="relative w-full h-full no-select overflow-hidden z-10 bg-transparent">
+      <div className="relative w-full h-full no-select overflow-hidden z-10 bg-transparent transform-gpu">
         <AnimatePresence mode="wait">
           {!gameStarted ? (
             <StartMenu 
@@ -179,10 +191,10 @@ export default function App() {
                 </div>
               </div>
 
-              {/* OVERLAY: Miniatura sincronizada y elevada (Estilo Captura) */}
+              {/* OVERLAY: Escala 1:1 con el dedo para precisión táctil */}
               <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor, smartCenterModifier]}>
-                {activePiece ? (
-                  <div className="pointer-events-none touch-none scale-[0.45] origin-center">
+                {activePiece && (
+                  <div className="pointer-events-none touch-none scale-[0.85] origin-center will-change-transform">
                     <DraggablePiece 
                       id={activePiece.id} 
                       isOverlay 
@@ -191,15 +203,15 @@ export default function App() {
                       color={activePiece.color}
                     />
                   </div>
-                ) : null}
+                )}
               </DragOverlay>
 
               <AnimatePresence>
-                {(game.isGameOver || FORZAR_MODAL_DISEÑO) && (
+                {game.isGameOver && (
                   <GameOverModal 
-                    score={game.isGameOver ? game.score : 9999} 
+                    score={game.score} 
                     highScore={game.highScore} 
-                    earnedCoins={game.isGameOver ? game.earnedInSession : 450}
+                    earnedCoins={game.earnedInSession}
                     totalCoins={coins}
                     onReset={() => { playSound(SOUNDS.click); game.resetGame(false); }} 
                     onRetry={() => { playSound(SOUNDS.click); game.resetGame(true); }} 

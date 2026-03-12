@@ -10,47 +10,38 @@ export const PieceDock = ({ children, performanceMode }: PieceDockProps) => {
   const { setNodeRef } = useDroppable({ id: "piece-dock" });
 
   return (
-    /* CONTENEDOR DE CENTRADO */
     <div className="w-full flex justify-center items-center px-4 mb-10 sm:mb-14">
-      
       <div
         ref={setNodeRef}
         className={`
-          /* 1. DIMENSIONES SINCRONIZADAS */
-          w-[88vw] md:w-[75vw] max-w-[450px]
+          w-[92vw] md:w-[80vw] max-w-[480px]
           h-28 sm:h-36 
-          
-          /* 2. LAYOUT */
           flex justify-center items-center
           rounded-[3rem] relative
           transition-all duration-700 ease-in-out
           
-          /* 3. ESTÉTICA "INVISIBLE" PERO PRESENTE
-             - Eliminamos el 'border' por completo.
-             - Usamos un gradiente casi imperceptible que nace del centro.
-          */
-          bg-radial-gradient from-white/[0.04] to-transparent
-          
-          /* 4. EFECTO DE PROFUNDIDAD
-             En lugar de bordes, usamos un difuminado (blur) muy ligero
-             para que las piezas parezcan estar sobre una superficie de seda.
+          /* EFECTO DE CUNA DE LUZ: 
+             Un gradiente radial que hace que el centro sea más claro que los bordes 
           */
           ${performanceMode 
-            ? "bg-transparent" 
-            : "backdrop-blur-md"
+            ? "bg-black/20" 
+            : "bg-gradient-to-b from-white/[0.08] to-transparent backdrop-blur-xl shadow-[inset_0_1px_20px_rgba(255,255,255,0.05)]"
           }
         `}
       >
-        {/* Un ligero destello central para guiar la vista, sin ser un borde */}
+        {/* BRILLO INTELIGENTE: 
+            Añadimos un resplandor "Aurora" suave en el fondo para que 
+            las piezas oscuras (como azul o morado) se recorten contra él.
+        */}
         {!performanceMode && (
-          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent rounded-[3rem] pointer-events-none" />
+          <div className="absolute inset-0 overflow-hidden rounded-[3rem] pointer-events-none">
+            <div className="absolute -top-[50%] left-[10%] right-[10%] h-full bg-white/[0.03] blur-[40px] rounded-full" />
+            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          </div>
         )}
 
-        {/* 5. DISTRIBUCIÓN DE PIEZAS 
-            Aumentamos el gap para que se sientan como objetos individuales 
-            y no como parte de una lista.
-        */}
-        <div className="flex w-full justify-evenly items-center px-2 sm:px-6 relative z-10">
+        {/* DISTRIBUCIÓN DE PIEZAS */}
+        <div className="flex w-full justify-around items-center px-2 sm:px-6 relative z-10">
           {children}
         </div>
       </div>

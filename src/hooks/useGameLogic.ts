@@ -1,15 +1,14 @@
 import { useState, useCallback, useEffect } from "react";
 import { getRandomPieces } from "../logic/pieces";
 import { type Piece, type PreviewData } from "../types";
-
-// Importamos las constantes de sonido centrales para mantener consistencia
 import { SOUNDS } from "../logic/constants";
 
 export const useGameLogic = (
   playSound: (url: string) => void,
   changeTheme: (lines: number) => void, 
   addCoins: (amount: number) => void,
-  spendCoins: (amount: number) => boolean
+  spendCoins: (amount: number) => boolean,
+  performanceMode: boolean // Prop para el motor de optimización
 ) => {
   // --- 1. GENERACIÓN DE PIEZAS ---
   const getNewTransformedPieces = useCallback(() => {
@@ -18,7 +17,6 @@ export const useGameLogic = (
     
     return rawPieces.map((p, idx) => {
       let currentShape = p.shape;
-      // No rotar si es un cuadrado perfecto lleno
       const isSquare = currentShape.length === currentShape[0].length && 
                        currentShape.flat().every(cell => cell === 1);
 
@@ -49,8 +47,21 @@ export const useGameLogic = (
   const [isGameOver, setIsGameOver] = useState(false);
   const [earnedInSession, setEarnedInSession] = useState(0);
 
-  // --- 3. EFECTOS ---
+  // --- 3. SINCRONIZACIÓN Y EFECTOS OPTIMIZADOS ---
+
+  /**
+   * SOLUCIÓN AL ERROR DE LA CAPTURA:
+   * Sincronizamos el displayScore durante el renderizado si performanceMode está activo.
+   * Esto evita llamar a setState dentro de un useEffect de forma síncrona.
+   */
+  if (performanceMode && displayScore !== score) {
+    setDisplayScore(score);
+  }
+
   useEffect(() => {
+    // Si estamos en modo rendimiento, el código de arriba ya se encarga.
+    if (performanceMode) return;
+
     let animationFrame: number;
     const animate = () => {
       if (displayScore < score) {
@@ -62,9 +73,15 @@ export const useGameLogic = (
         setDisplayScore(score);
       }
     };
-    if (displayScore !== score) animationFrame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [score, displayScore]);
+
+    if (displayScore !== score) {
+      animationFrame = requestAnimationFrame(animate);
+    }
+
+    return () => {
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+    };
+  }, [score, displayScore, performanceMode]);
 
   useEffect(() => {
     localStorage.setItem("ai-block-highscore", highScore.toString());
@@ -74,7 +91,6 @@ export const useGameLogic = (
   const canPlacePiece = useCallback((piece: Piece, currentGrid: (string | null)[][]) => {
     const rows = piece.shape.length;
     const cols = piece.shape[0].length;
-
     for (let r = 0; r <= 8 - rows; r++) {
       for (let c = 0; c <= 8 - cols; c++) {
         let fits = true;
@@ -92,28 +108,23 @@ export const useGameLogic = (
     return false;
   }, []);
 
-  // --- 5. LÓGICA DE COLOCACIÓN (Sincronizada con App.tsx) ---
+  // --- 5. LÓGICA DE COLOCACIÓN (Turbo Edition) ---
   const placePiece = useCallback((preview: PreviewData, activeId: string) => {
     const { shape, r: startR, c: startC, color } = preview;
-
-    // Validación de límites estricta 8x8
     if (startR < 0 || startC < 0 || startR + shape.length > 8 || startC + shape[0].length > 8) return;
 
     const newGrid = grid.map(row => [...row]);
     
-    // Colocación
+    // Inyectar pieza
     for (let i = 0; i < shape.length; i++) {
       for (let j = 0; j < shape[i].length; j++) {
-        if (shape[i][j] === 1) {
-          newGrid[startR + i][startC + j] = color;
-        }
+        if (shape[i][j] === 1) newGrid[startR + i][startC + j] = color;
       }
     }
 
     // Detección de líneas
     const rowsToClear: number[] = [];
     const colsToClear: number[] = [];
-
     for (let i = 0; i < 8; i++) {
       if (newGrid[i].every(cell => cell !== null)) rowsToClear.push(i);
       let colFull = true;
@@ -158,16 +169,18 @@ export const useGameLogic = (
     if (nextScore > highScore) setHighScore(nextScore);
     setGrid(newGrid);
 
-    // Gestión de piezas disponibles
-    const remaining = availablePieces.filter(p => p.id !== activeId);
-    const nextSet = remaining.length === 0 ? getNewTransformedPieces() : remaining;
-    setAvailablePieces(nextSet);
+    // Micro-tarea para liberar el hilo principal (Optimización Honor)
+    Promise.resolve().then(() => {
+      const remaining = availablePieces.filter(p => p.id !== activeId);
+      const nextSet = remaining.length === 0 ? getNewTransformedPieces() : remaining;
+      setAvailablePieces(nextSet);
 
-    // Comprobar GameOver
-    if (!nextSet.some(p => canPlacePiece(p, newGrid))) {
-      setIsGameOver(true);
-      playSound(SOUNDS.gameOver);
-    }
+      if (!nextSet.some(p => canPlacePiece(p, newGrid))) {
+        setIsGameOver(true);
+        playSound(SOUNDS.gameOver);
+      }
+    });
+
   }, [grid, availablePieces, combo, maxCombo, linesCleared, score, highScore, addCoins, playSound, changeTheme, getNewTransformedPieces, canPlacePiece]);
 
   const resetGame = useCallback((isRetry: boolean = false) => {

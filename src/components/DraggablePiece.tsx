@@ -20,14 +20,12 @@ export const DraggablePiece = memo(({ id, shape, color, isOverlay = false, perfo
       : PIECE_COLORS[color] || color;
   }, [color, performanceMode]);
 
-  // LÓGICA V3.8: Escalas y dimensiones para que se vea como en tu captura
   const style = {
-    // Si es el overlay, se queda en escala 0.85 (un poco más pequeña que el hueco para que se vea el borde)
-    // Si está en el dock, escala 0.6 para que quepan las 3 piezas cómodamente.
-    transform: isOverlay ? "scale(0.85)" : "scale(0.65)",
+    // Escala ajustada: un poco más grande en el overlay para que se vea la luz
+    transform: isOverlay ? "scale(0.9)" : "scale(0.7)",
     opacity: isDragging && !isOverlay ? 0 : 1,
     touchAction: "none" as const,
-    transition: isOverlay ? "none" : "transform 0.2s cubic-bezier(0.2, 0, 0, 1)",
+    transition: isOverlay ? "none" : "transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
     cursor: isOverlay ? "grabbing" : "grab",
   };
 
@@ -37,10 +35,10 @@ export const DraggablePiece = memo(({ id, shape, color, isOverlay = false, perfo
       {...listeners}
       {...attributes}
       style={style}
-      className={`origin-center ${isOverlay ? "z-[1000] dragging-active" : "relative"}`}
+      className={`origin-center ${isOverlay ? "z-[1000]" : "relative"}`}
     >
       <div
-        className="grid gap-[2px]"
+        className="grid gap-[4px]" // Separación para que los bordes de neón respiren
         style={{
           gridTemplateColumns: `repeat(${shape[0].length}, 1fr)`,
         }}
@@ -49,14 +47,23 @@ export const DraggablePiece = memo(({ id, shape, color, isOverlay = false, perfo
           row.map((cell, cIdx) => (
             <div
               key={`${rIdx}-${cIdx}`}
-              /* AJUSTE DE TAMAÑO: Usamos 4.5vw - 5vw (como en v3.8) 
-                Esto mantiene la proporción "mini" de tu captura.
-              */
               className={`
-                w-[7vw] h-[7vw] max-w-[28px] max-h-[28px] rounded-[3px]
-                ${cell ? `${activeColor} border border-white/20 shadow-sm ring-1 ring-white/5` : "bg-transparent"}
+                w-[8vw] h-[8vw] max-w-[34px] max-h-[34px] relative
+                ${cell === 1 
+                  ? `rounded-[6px] border-[1px] ${activeColor}` 
+                  : "bg-transparent"}
               `}
-            />
+            >
+              {cell === 1 && !performanceMode && (
+                <>
+                  {/* EFECTO TUBO: Línea central blanca sutil para simular el gas del neón */}
+                  <div className="absolute inset-[-1px] border-[1px] border-white/30 rounded-[6px] pointer-events-none" />
+                  
+                  {/* RESPLANDOR INTERNO SUTIL: Para que el bloque no se vea vacío por completo */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+                </>
+              )}
+            </div>
           ))
         )}
       </div>

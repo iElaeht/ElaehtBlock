@@ -19,41 +19,56 @@ export const ANIMATION_STYLES = `
     user-select: none; 
   }
 
-  .dragging-active {
-    cursor: grabbing !important;
-    will-change: transform;
-    pointer-events: none;
+  /* TEXTURA CARBON FIBER RELAJADA (Opacidad baja para no cansar la vista) */
+  .bg-carbon {
+    background-color: #0a0a0a;
+    background-image: 
+      linear-gradient(45deg, rgba(0,0,0,0.5) 25%, transparent 25%), 
+      linear-gradient(-45deg, rgba(0,0,0,0.5) 25%, transparent 25%), 
+      linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.5) 75%), 
+      linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.5) 75%);
+    background-size: 4px 4px;
+    background-position: 0 0, 0 2px, 2px 2px, 2px 0;
   }
+
+  /* Brillo Soft-Glow (Sincronizado con PIECE_COLORS) */
+  .shadow-neon-blue { box-shadow: 0 0 15px rgba(59,130,246,0.3); }
+  .shadow-neon-purple { box-shadow: 0 0 15px rgba(168,85,247,0.3); }
+  .shadow-neon-green { box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+  .shadow-neon-red { box-shadow: 0 0 15px rgba(239,68,68,0.3); }
+  .shadow-neon-yellow { box-shadow: 0 0 15px rgba(245,158,11,0.3); }
+  .shadow-neon-orange { box-shadow: 0 0 15px rgba(249,115,22,0.3); }
+  .shadow-neon-cyan { box-shadow: 0 0 15px rgba(6,182,212,0.3); }
+  .shadow-neon-pink { box-shadow: 0 0 15px rgba(236,72,153,0.3); }
+
+  @keyframes scanline {
+    0% { transform: translateY(-100%); opacity: 0; }
+    50% { opacity: 0.1; }
+    100% { transform: translateY(200%); opacity: 0; }
+  }
+  .animate-scanline { animation: scanline 2.5s linear infinite; }
 `;
 
 export const PERFORMANCE_COLORS: Record<string, string> = {
-  "bg-blue-600": "bg-blue-500",
-  "bg-emerald-600": "bg-emerald-500",
-  "bg-red-600": "bg-red-500",
-  "bg-purple-600": "bg-purple-500",
-  "bg-orange-600": "bg-orange-500",
-  "bg-cyan-600": "bg-cyan-500",
-  "bg-pink-600": "bg-pink-500",
-  "bg-indigo-600": "bg-indigo-500",
+  blue: "bg-[#007AFF]",
+  purple: "bg-[#BF5AF2]",
+  green: "bg-[#32D74B]",
+  red: "bg-[#FF453A]",
+  yellow: "bg-[#FFD60A]",
+  orange: "bg-[#FF9F0A]",
+  cyan: "bg-[#64D2FF]",
+  pink: "bg-[#FF375F]",
 };
 
 export const PIECE_COLORS: Record<string, string> = {
-  // Un azul índigo suave, muy profesional
-  blue: "bg-[#4A90E2] shadow-[0_4px_10px_rgba(74,144,226,0.25)]", 
-  // Violeta "Amethyst" claro
-  purple: "bg-[#9B51E0] shadow-[0_4px_10px_rgba(155,81,224,0.25)]", 
-  // Verde esmeralda suave (muy visible sobre fondos oscuros)
-  green: "bg-[#27AE60] shadow-[0_4px_10px_rgba(39,174,96,0.25)]", 
-  // Coral energético (contraste alto con el azul)
-  red: "bg-[#EB5757] shadow-[0_4px_10px_rgba(235,87,87,0.25)]", 
-  // Amarillo "Miel" (más cálido, menos chillón)
-  yellow: "bg-[#F2C94C] shadow-[0_4px_10px_rgba(242,201,76,0.25)]", 
-  // Naranja arcilla moderna
-  orange: "bg-[#F2994A] shadow-[0_4px_10px_rgba(242,153,74,0.25)]", 
-  // Turquesa Tiffany (contraste máximo con el rojo)
-  cyan: "bg-[#2D9CDB] shadow-[0_4px_10px_rgba(45,156,219,0.25)]", 
-  // Orquídea / Magenta suave
-  pink: "bg-[#BB6BD9] shadow-[0_4px_10px_rgba(187,107,217,0.25)]",
+  blue: "border-[#3B82F6]/50 bg-[#1D4ED8]/15 shadow-[0_0_20px_rgba(59,130,246,0.2),inset_0_0_12px_rgba(59,130,246,0.2)]",
+  purple: "border-[#A855F7]/50 bg-[#7E22CE]/15 shadow-[0_0_20px_rgba(168,85,247,0.2),inset_0_0_12px_rgba(168,85,247,0.2)]",
+  green: "border-[#10B981]/50 bg-[#047857]/15 shadow-[0_0_20px_rgba(16,185,129,0.2),inset_0_0_12px_rgba(16,185,129,0.2)]",
+  red: "border-[#EF4444]/50 bg-[#B91C1C]/15 shadow-[0_0_20px_rgba(239,68,68,0.2),inset_0_0_12px_rgba(239,68,68,0.2)]",
+  yellow: "border-[#F59E0B]/50 bg-[#B45309]/15 shadow-[0_0_20px_rgba(245,158,11,0.2),inset_0_0_12px_rgba(245,158,11,0.2)]",
+  orange: "border-[#F97316]/50 bg-[#C2410C]/15 shadow-[0_0_20px_rgba(249,115,22,0.2),inset_0_0_12px_rgba(249,115,22,0.2)]",
+  cyan: "border-[#06B6D4]/50 bg-[#0E7490]/15 shadow-[0_0_20px_rgba(6,182,212,0.2),inset_0_0_12px_rgba(6,182,212,0.2)]",
+  pink: "border-[#EC4899]/50 bg-[#BE185D]/15 shadow-[0_0_20px_rgba(236,72,153,0.2),inset_0_0_12px_rgba(236,72,153,0.2)]",
 };
 
 export const SOUNDS = {

@@ -1,16 +1,29 @@
 import { useState, useCallback, useMemo } from "react";
 
 const THEMES = [
-  { id: "cappuccino", bg: "bg-gradient-to-br from-[#4B3832] via-[#854442] to-[#BE9B7B]", text: "text-white/90", accent: "bg-[#FFF4E6] !text-[#4B3832]", accentText: "text-[#BE9B7B]" },
-  { id: "latte", bg: "bg-gradient-to-br from-[#7E6D5E] via-[#A89481] to-[#D6C5B3]", text: "text-white/90", accent: "bg-white/90 !text-[#7E6D5E]", accentText: "text-[#A89481]" },
-  { id: "midnight-nebula", bg: "bg-gradient-to-br from-[#1A1A2E] via-[#16213E] to-[#0F3460]", text: "text-white/90", accent: "bg-cyan-400/20 border border-cyan-400/50 !text-cyan-100", accentText: "text-cyan-400" },
-  { id: "deep-forest", bg: "bg-gradient-to-br from-[#0B201A] via-[#14532D] to-[#166534]", text: "text-white/90", accent: "bg-emerald-400/20 border border-emerald-400/50 !text-emerald-100", accentText: "text-emerald-400" },
-  { id: "soft-lavender", bg: "bg-gradient-to-br from-[#5D54A4] via-[#7D73D1] to-[#9B91E2]", text: "text-white/90", accent: "bg-white/90 !text-[#5D54A4]", accentText: "text-[#9B91E2]" },
-  { id: "muted-coral", bg: "bg-gradient-to-br from-[#935D5D] via-[#B37D7D] to-[#D39D9D]", text: "text-white/90", accent: "bg-white/90 !text-[#935D5D]", accentText: "text-[#B37D7D]" },
-  { id: "sage-garden", bg: "bg-gradient-to-br from-[#4A5D4E] via-[#718F78] to-[#99BFA1]", text: "text-white/90", accent: "bg-white/90 !text-[#4A5D4E]", accentText: "text-[#718F78]" },
-  { id: "arctic-night", bg: "bg-gradient-to-br from-[#2C3E50] via-[#34495E] to-[#4B6584]", text: "text-white/90", accent: "bg-sky-100 !text-[#2C3E50]", accentText: "text-sky-400" },
-  { id: "deep-plum", bg: "bg-gradient-to-br from-[#2D132C] via-[#510A32] to-[#801336]", text: "text-white/90", accent: "bg-pink-100 !text-[#2D132C]", accentText: "text-pink-400" },
-  { id: "charcoal-gold", bg: "bg-gradient-to-br from-[#121212] via-[#242424] to-[#3D3D3D]", text: "text-white/90", accent: "bg-[#D4AF37]/20 border border-[#D4AF37] !text-[#D4AF37]", accentText: "text-[#D4AF37]" },
+  // --- GRUPO: CAFÉ Y CÁLIDOS (SUAVES) ---
+  { id: "cappuccino", bg: "bg-gradient-to-br from-[#2D1B14] via-[#4B3832] to-[#634832]", text: "text-amber-50/90", accent: "bg-amber-100/10 border border-amber-200/30 !text-amber-100", accentText: "text-amber-200" },
+  { id: "espresso", bg: "bg-gradient-to-br from-[#120C06] via-[#2A1D15] to-[#3E2C23]", text: "text-amber-50/80", accent: "bg-orange-900/40 border border-orange-700/50 !text-orange-100", accentText: "text-orange-400" },
+  
+  // --- GRUPO: FRÍOS Y NOCTURNOS (BAJO BRILLO) ---
+  { id: "midnight-nebula", bg: "bg-gradient-to-br from-[#0A0A1A] via-[#12122B] to-[#1A1A3A]", text: "text-cyan-50/90", accent: "bg-cyan-500/10 border border-cyan-500/40 !text-cyan-100", accentText: "text-cyan-400" },
+  { id: "arctic-night", bg: "bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#334155]", text: "text-sky-50/90", accent: "bg-sky-500/10 border border-sky-400/40 !text-sky-100", accentText: "text-sky-400" },
+  { id: "deep-ocean", bg: "bg-gradient-to-br from-[#020617] via-[#0F172A] to-[#1E1B4B]", text: "text-indigo-100/90", accent: "bg-indigo-500/20 border border-indigo-400/40 !text-indigo-200", accentText: "text-indigo-300" },
+
+  // --- GRUPO: NATURALEZA (MATES) ---
+  { id: "deep-forest", bg: "bg-gradient-to-br from-[#051109] via-[#062D17] to-[#143D21]", text: "text-emerald-50/90", accent: "bg-emerald-500/10 border border-emerald-500/40 !text-emerald-100", accentText: "text-emerald-400" },
+  { id: "moss-stone", bg: "bg-gradient-to-br from-[#1C1D17] via-[#2E3025] to-[#454739]", text: "text-lime-50/80", accent: "bg-lime-500/10 border border-lime-400/30 !text-lime-200", accentText: "text-lime-300" },
+  { id: "sage-garden", bg: "bg-gradient-to-br from-[#2D362F] via-[#4A5D4E] to-[#607D66]", text: "text-green-50/90", accent: "bg-green-100/10 border border-green-200/20 !text-green-50", accentText: "text-green-200" },
+
+  // --- GRUPO: VINTAGE Y PASTELES OSCUROS ---
+  { id: "deep-plum", bg: "bg-gradient-to-br from-[#1A091A] via-[#311131] to-[#4A194A]", text: "text-fuchsia-50/90", accent: "bg-fuchsia-500/10 border border-fuchsia-500/40 !text-fuchsia-100", accentText: "text-fuchsia-400" },
+  { id: "muted-coral", bg: "bg-gradient-to-br from-[#2D1616] via-[#4A2626] to-[#633434]", text: "text-rose-50/90", accent: "bg-rose-500/10 border border-rose-500/40 !text-rose-100", accentText: "text-rose-400" },
+  { id: "dusty-rose", bg: "bg-gradient-to-br from-[#3D2B2B] via-[#5C4141] to-[#7A5656]", text: "text-pink-50/90", accent: "bg-pink-100/10 border border-pink-200/20 !text-pink-50", accentText: "text-pink-200" },
+
+  // --- GRUPO: PREMIUM / OSCUROS TOTALES ---
+  { id: "charcoal-gold", bg: "bg-gradient-to-br from-[#0A0A0A] via-[#141414] to-[#1F1F1F]", text: "text-amber-100/80", accent: "bg-amber-500/10 border border-amber-600/40 !text-amber-200", accentText: "text-amber-500" },
+  { id: "obsidian-slate", bg: "bg-gradient-to-br from-[#020202] via-[#0F172A] to-[#1E293B]", text: "text-slate-100/80", accent: "bg-slate-400/10 border border-slate-500/40 !text-slate-200", accentText: "text-slate-400" },
+  { id: "industrial-iron", bg: "bg-gradient-to-br from-[#1A1A1A] via-[#2D2D2D] to-[#404040]", text: "text-gray-100/90", accent: "bg-gray-400/10 border border-gray-500/30 !text-gray-100", accentText: "text-gray-300" },
 ];
 
 export const useTheme = () => {
